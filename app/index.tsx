@@ -12,27 +12,20 @@ import { useZone } from "@/lib/hooks/zone";
 import { useWaktuSolat } from "@/lib/hooks/waktu";
 
 export default function Index() {
-  const { location, updateLocation } = useLocation();
+  const { updateLocation } = useLocation();
   const { zone, setZone } = useZone();
   const { waktuSolat, setWaktuSolat, waktuSolatExpired } = useWaktuSolat();
 
-  const lat = location?.coords.latitude;
-  const lng = location?.coords.longitude;
+  const onPressUpdateLocation = async () => {
+    const location = await updateLocation();
+    const lat = location?.coords.latitude;
+    const lng = location?.coords.longitude;
 
-  const onPressSetLocation = async () => {
-    await updateLocation();
-  };
-
-  useEffect(() => {
-    async function effect() {
-      if (lat && lng) {
-        const zoneData = await getZoneByGps(lat, lng);
-        setZone(zoneData);
-      }
+    if (lat && lng) {
+      const zoneData = await getZoneByGps(lat, lng);
+      setZone(zoneData);
     }
-
-    effect();
-  }, [lat, lng, setZone]);
+  };
 
   useEffect(() => {
     async function effect() {
@@ -66,7 +59,7 @@ export default function Index() {
 
   const zoneText = zone
     ? `${zone.zone} - ${zone.district}, ${zone.state}`
-    : "invalid location";
+    : "Location not set";
   const prayer = (waktuSolat &&
     waktuSolat.prayers[new Date().getDate() - 1]) || {
     fajr: 0,
@@ -79,23 +72,22 @@ export default function Index() {
 
   return (
     <View style={{ flex: 1 }}>
-      <Text>lat: {lat}</Text>
-      <Text>lng: {lng}</Text>
-      <Text>zone: {zoneText}</Text>
-
       <Button
-        onPress={onPressSetLocation}
-        title="Set Location"
+        onPress={onPressUpdateLocation}
+        title="Update Location via GPS"
         color="#841584"
       />
+      <View style={{ padding: 10 }}>
+        <Text>Location: {zoneText}</Text>
+      </View>
 
-      <View style={{ height: 20 }} />
-
-      <WidgetPreview
-        renderWidget={() => <WaktuSolatWidget zone={zoneText} {...prayer} />}
-        width={320}
-        height={90}
-      />
+      <View style={{ alignItems: "center" }}>
+        <WidgetPreview
+          renderWidget={() => <WaktuSolatWidget zone={zoneText} {...prayer} />}
+          width={320}
+          height={90}
+        />
+      </View>
     </View>
   );
 }

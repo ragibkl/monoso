@@ -90,6 +90,7 @@ export function WaktuSolatWidget(props: HelloWidgetProps) {
 
   return (
     <FlexWidget
+      clickAction="WAKTU_SOLAT_CLICK_ACTION"
       style={{
         flex: 1,
         flexDirection: "column",
@@ -99,7 +100,7 @@ export function WaktuSolatWidget(props: HelloWidgetProps) {
         alignItems: "flex-start",
         backgroundColor: "#ffffff",
         borderRadius: 5,
-        padding: 5,
+        padding: 10,
       }}
     >
       <FlexWidget
