@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 import * as Location from "expo-location";
 
 export async function getLocation(): Promise<Location.LocationObject | null> {
-  let { status } = await Location.requestForegroundPermissionsAsync();
-  if (status !== "granted") {
+  let fgPermission = await Location.requestForegroundPermissionsAsync();
+  if (fgPermission.status !== "granted") {
     return null;
   }
 
@@ -16,16 +16,16 @@ export function useLocation() {
     null,
   );
 
-  async function updateLocation() {
-    let location = await getLocation();
+  const updateLocation = useCallback(async () => {
+    const location = await getLocation();
     setLocation(location);
 
     return location;
-  }
+  }, []);
 
   useEffect(() => {
     updateLocation();
-  }, []);
+  }, [updateLocation]);
 
   return { location, updateLocation };
 }

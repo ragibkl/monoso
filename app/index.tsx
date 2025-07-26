@@ -1,4 +1,4 @@
-import { Button, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import { useEffect } from "react";
 
 import { getWaktuSolatByZone, getZoneByGps } from "@/lib/remote/waktusolat";
@@ -16,16 +16,21 @@ export default function Index() {
   const { zone, setZone } = useZone();
   const { waktuSolat, setWaktuSolat, waktuSolatExpired } = useWaktuSolat();
 
-  const onPressUpdateLocation = async () => {
-    const location = await updateLocation();
-    const lat = location?.coords.latitude;
-    const lng = location?.coords.longitude;
+  useEffect(() => {
+    async function effect() {
+      const location = await updateLocation();
 
-    if (lat && lng) {
-      const zoneData = await getZoneByGps(lat, lng);
-      setZone(zoneData);
+      if (location) {
+        const zoneData = await getZoneByGps(
+          location.coords.latitude,
+          location.coords.longitude,
+        );
+        setZone(zoneData);
+      }
     }
-  };
+
+    effect();
+  }, [updateLocation, setZone]);
 
   useEffect(() => {
     async function effect() {
@@ -70,13 +75,9 @@ export default function Index() {
     isha: 0,
   };
 
+  console.log("render");
   return (
     <View style={{ flex: 1 }}>
-      <Button
-        onPress={onPressUpdateLocation}
-        title="Update Location via GPS"
-        color="#841584"
-      />
       <View style={{ padding: 10 }}>
         <Text>Location: {zoneText}</Text>
       </View>

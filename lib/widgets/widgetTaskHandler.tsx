@@ -68,7 +68,6 @@ async function waktuSolatWidgetTaskHandler(props: WidgetTaskHandlerProps) {
     case "WIDGET_CLICK":
       // Not needed for now
       if (props.clickAction === "WAKTU_SOLAT_CLICK_ACTION") {
-        console.log("WAKTU_SOLAT_CLICK_ACTION::renderWaktuSolatWidget");
         await renderWaktuSolatWidget(props);
       }
       break;
