@@ -10,15 +10,33 @@ import {
 } from "../hooks/waktu";
 import { getZoneData } from "../hooks/zone";
 
+async function renderWaktuSolatWidget(props: WidgetTaskHandlerProps) {
+  const zone = await getZoneData();
+  if (!zone) {
+    return;
+  }
+
+  const date = new Date();
+  let waktuSolat = await getWaktuSolatData();
+  if (!waktuSolat || isWaktuSolatExpired(waktuSolat, zone.zone)) {
+    waktuSolat = await getWaktuSolatByZone(zone.zone);
+    await setWaktuSolatData(waktuSolat);
+  }
+
+  const zoneText = `${zone.zone} - ${zone.district}, ${zone.state}`;
+  const prayer = waktuSolat.prayers[date.getDate() - 1];
+  props.renderWidget(<WaktuSolatWidget zone={zoneText} {...prayer} />);
+}
+
 async function waktuSolatWidgetTaskHandler(props: WidgetTaskHandlerProps) {
-  console.log(props.widgetInfo, props.widgetAction);
+  console.log(props.widgetAction, props.widgetInfo);
+
   switch (props.widgetAction) {
     case "WIDGET_ADDED":
       {
         props.renderWidget(
           <WaktuSolatWidget
             zone="invalid location"
-            date={new Date()}
             fajr={0}
             syuruk={0}
             dhuhr={0}
@@ -28,54 +46,14 @@ async function waktuSolatWidgetTaskHandler(props: WidgetTaskHandlerProps) {
           />,
         );
 
-        const zone = await getZoneData();
-        if (!zone) {
-          return;
-        }
-
-        let waktuSolat = await getWaktuSolatData();
-        if (!waktuSolat || isWaktuSolatExpired(waktuSolat, zone.zone)) {
-          waktuSolat = await getWaktuSolatByZone(zone.zone);
-          await setWaktuSolatData(waktuSolat);
-        }
-
-        const date = new Date();
-        const zoneText = `${zone.zone} - ${zone.district}, ${zone.state}`;
-
-        props.renderWidget(
-          <WaktuSolatWidget
-            zone={zoneText}
-            date={date}
-            {...waktuSolat.prayers[date.getDay()]}
-          />,
-        );
+        await renderWaktuSolatWidget(props);
       }
 
       break;
 
     case "WIDGET_UPDATE":
       {
-        const zone = await getZoneData();
-        if (!zone) {
-          return;
-        }
-
-        let waktuSolat = await getWaktuSolatData();
-        if (!waktuSolat || isWaktuSolatExpired(waktuSolat, zone.zone)) {
-          waktuSolat = await getWaktuSolatByZone(zone.zone);
-          await setWaktuSolatData(waktuSolat);
-        }
-
-        const date = new Date();
-        const zoneText = `${zone.zone} - ${zone.district}, ${zone.state}`;
-
-        props.renderWidget(
-          <WaktuSolatWidget
-            zone={zoneText}
-            date={date}
-            {...waktuSolat.prayers[date.getDay()]}
-          />,
-        );
+        await renderWaktuSolatWidget(props);
       }
       break;
 
@@ -89,6 +67,9 @@ async function waktuSolatWidgetTaskHandler(props: WidgetTaskHandlerProps) {
 
     case "WIDGET_CLICK":
       // Not needed for now
+      {
+        await renderWaktuSolatWidget(props);
+      }
       break;
 
     default:

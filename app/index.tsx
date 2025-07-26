@@ -4,7 +4,10 @@ import { useEffect } from "react";
 import { getWaktuSolatByZone, getZoneByGps } from "@/lib/remote/waktusolat";
 import { useLocation } from "@/lib/hooks/location";
 import { WaktuSolatWidget } from "@/lib/widgets/WaktuSolatWidget";
-import { WidgetPreview } from "react-native-android-widget";
+import {
+  requestWidgetUpdate,
+  WidgetPreview,
+} from "react-native-android-widget";
 import { useZone } from "@/lib/hooks/zone";
 import { useWaktuSolat } from "@/lib/hooks/waktu";
 
@@ -15,9 +18,6 @@ export default function Index() {
 
   const lat = location?.coords.latitude;
   const lng = location?.coords.longitude;
-
-  const date = new Date();
-  const day = date.getDay();
 
   const onPressSetLocation = async () => {
     await updateLocation();
@@ -49,10 +49,26 @@ export default function Index() {
     effect();
   }, [zone, setWaktuSolat, waktuSolatExpired]);
 
+  useEffect(() => {
+    if (!zone || !waktuSolat) {
+      return;
+    }
+
+    const zoneText = `${zone.zone} - ${zone.district}, ${zone.state}`;
+    const prayer = waktuSolat.prayers[new Date().getDate() - 1];
+
+    requestWidgetUpdate({
+      widgetName: "WaktuSolat",
+      renderWidget: () => <WaktuSolatWidget zone={zoneText} {...prayer} />,
+      widgetNotFound: () => {},
+    });
+  }, [zone, waktuSolat]);
+
   const zoneText = zone
     ? `${zone.zone} - ${zone.district}, ${zone.state}`
     : "invalid location";
-  const prayer = (waktuSolat && waktuSolat.prayers[day]) || {
+  const prayer = (waktuSolat &&
+    waktuSolat.prayers[new Date().getDate() - 1]) || {
     fajr: 0,
     syuruk: 0,
     dhuhr: 0,
@@ -60,6 +76,7 @@ export default function Index() {
     maghrib: 0,
     isha: 0,
   };
+
   return (
     <View style={{ flex: 1 }}>
       <Text>lat: {lat}</Text>
@@ -75,11 +92,9 @@ export default function Index() {
       <View style={{ height: 20 }} />
 
       <WidgetPreview
-        renderWidget={() => (
-          <WaktuSolatWidget zone={zoneText} date={date} {...prayer} />
-        )}
+        renderWidget={() => <WaktuSolatWidget zone={zoneText} {...prayer} />}
         width={320}
-        height={80}
+        height={90}
       />
     </View>
   );

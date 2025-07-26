@@ -1,7 +1,7 @@
 import React from "react";
 import { FlexWidget, TextWidget } from "react-native-android-widget";
 
-function TextLabel(props: { children: string }) {
+function TextLabel(props: { children: string; bold: boolean }) {
   return (
     <FlexWidget
       style={{
@@ -14,6 +14,7 @@ function TextLabel(props: { children: string }) {
         text={props.children}
         style={{
           fontSize: 10,
+          fontWeight: props.bold ? "bold" : "normal",
           color: "#000000",
         }}
       />
@@ -21,7 +22,7 @@ function TextLabel(props: { children: string }) {
   );
 }
 
-function TimeDisplay(props: { children: number }) {
+function TimeDisplay(props: { children: number; bold: boolean }) {
   const date = new Date(0);
   date.setUTCSeconds(props.children);
   const text = date.toLocaleString([], {
@@ -41,7 +42,7 @@ function TimeDisplay(props: { children: number }) {
         text={text}
         style={{
           fontSize: 10,
-          fontWeight: "bold",
+          fontWeight: props.bold ? "bold" : "normal",
           color: "#000000",
         }}
       />
@@ -49,25 +50,25 @@ function TimeDisplay(props: { children: number }) {
   );
 }
 
-function Column(props: { label: string; time: number }) {
+function Column(props: { label: string; time: number; bold: boolean }) {
   return (
     <FlexWidget
       style={{
         flex: 1,
         flexDirection: "column",
+        height: "match_parent",
         justifyContent: "center",
         alignItems: "center",
       }}
     >
-      <TextLabel>{props.label}</TextLabel>
-      <TimeDisplay>{props.time}</TimeDisplay>
+      <TextLabel bold={props.bold}>{props.label}</TextLabel>
+      <TimeDisplay bold={props.bold}>{props.time}</TimeDisplay>
     </FlexWidget>
   );
 }
 
 type HelloWidgetProps = {
   zone: string;
-  date: Date;
   fajr: number;
   syuruk: number;
   dhuhr: number;
@@ -77,6 +78,16 @@ type HelloWidgetProps = {
 };
 
 export function WaktuSolatWidget(props: HelloWidgetProps) {
+  const date = new Date();
+  const epoch = date.getTime() / 1000;
+
+  const fajrBold = epoch >= props.fajr && epoch < props.syuruk;
+  const syurukBold = epoch >= props.syuruk && epoch < props.dhuhr;
+  const dhuhrBold = epoch >= props.dhuhr && epoch < props.asr;
+  const asrBold = epoch >= props.asr && epoch < props.maghrib;
+  const maghribBold = epoch >= props.maghrib && epoch < props.isha;
+  const ishaBold = epoch >= props.isha;
+
   return (
     <FlexWidget
       style={{
@@ -93,14 +104,13 @@ export function WaktuSolatWidget(props: HelloWidgetProps) {
     >
       <FlexWidget
         style={{
-          flex: 1,
           flexDirection: "row",
           width: "match_parent",
           justifyContent: "space-between",
         }}
       >
         <TextWidget
-          text={props.date.toDateString()}
+          text={date.toDateString()}
           style={{ fontSize: 12, color: "#000000" }}
         />
         <TextWidget
@@ -119,12 +129,12 @@ export function WaktuSolatWidget(props: HelloWidgetProps) {
           borderWidth: 1,
         }}
       >
-        <Column label="Fajr" time={props.fajr} />
-        <Column label="Syuruk" time={props.syuruk} />
-        <Column label="Dhuhr" time={props.dhuhr} />
-        <Column label="Asr" time={props.asr} />
-        <Column label="Maghrib" time={props.maghrib} />
-        <Column label="Isha" time={props.isha} />
+        <Column label="Fajr" time={props.fajr} bold={fajrBold} />
+        <Column label="Syuruk" time={props.syuruk} bold={syurukBold} />
+        <Column label="Dhuhr" time={props.dhuhr} bold={dhuhrBold} />
+        <Column label="Asr" time={props.asr} bold={asrBold} />
+        <Column label="Maghrib" time={props.maghrib} bold={maghribBold} />
+        <Column label="Isha" time={props.isha} bold={ishaBold} />
       </FlexWidget>
     </FlexWidget>
   );

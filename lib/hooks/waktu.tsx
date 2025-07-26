@@ -65,10 +65,6 @@ export function isWaktuSolatExpired(
   waktuSolat: WaktuSolatResponse,
   zone: string,
 ) {
-  if (!waktuSolat) {
-    return true;
-  }
-
   const date = new Date();
   if (
     waktuSolat.zone !== zone ||
@@ -86,10 +82,7 @@ export function useWaktuSolat() {
   const setWaktuSolat = useContext(SetWaktuSolatContext);
 
   function waktuSolatExpired(zone: string) {
-    if (!waktuSolat) {
-      return true;
-    }
-    return isWaktuSolatExpired(waktuSolat, zone);
+    return !waktuSolat || isWaktuSolatExpired(waktuSolat, zone);
   }
 
   return { waktuSolat, setWaktuSolat, waktuSolatExpired };
