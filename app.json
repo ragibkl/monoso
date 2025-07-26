@@ -25,6 +25,13 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow MonoSo to use your location.",
+          "isAndroidBackgroundLocationEnabled": true
+        }
+      ],
       "expo-router",
       [
         "expo-splash-screen",
@@ -43,9 +50,9 @@
               "name": "Hello",
               "label": "My Hello Widget",
               "minWidth": "320dp",
-              "minHeight": "120dp",
+              "minHeight": "60dp",
               "targetCellWidth": 5,
-              "targetCellHeight": 2,
+              "targetCellHeight": 1,
               "description": "This is my first widget",
               "previewImage": "./assets/widget-preview/hello.png",
               "updatePeriodMillis": 1800000
