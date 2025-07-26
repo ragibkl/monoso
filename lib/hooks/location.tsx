@@ -16,14 +16,16 @@ export function useLocation() {
     null,
   );
 
-  useEffect(() => {
-    async function getCurrentLocation() {
-      let location = await getLocation();
-      setLocation(location);
-    }
+  async function updateLocation() {
+    let location = await getLocation();
+    setLocation(location);
 
-    getCurrentLocation();
+    return location;
+  }
+
+  useEffect(() => {
+    updateLocation();
   }, []);
 
-  return { location };
+  return { location, updateLocation };
 }

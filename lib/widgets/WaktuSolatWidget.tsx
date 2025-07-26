@@ -1,25 +1,23 @@
 import React from "react";
 import { FlexWidget, TextWidget } from "react-native-android-widget";
 
-type HelloWidgetProps = {
-  zone: string;
-  fajr: number;
-  syuruk: number;
-  dhuhr: number;
-  asr: number;
-  maghrib: number;
-  isha: number;
-};
-
 function TextLabel(props: { children: string }) {
   return (
-    <TextWidget
-      text={props.children}
+    <FlexWidget
       style={{
-        fontSize: 10,
-        color: "#000000",
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
       }}
-    />
+    >
+      <TextWidget
+        text={props.children}
+        style={{
+          fontSize: 10,
+          color: "#000000",
+        }}
+      />
+    </FlexWidget>
   );
 }
 
@@ -32,14 +30,22 @@ function TimeDisplay(props: { children: number }) {
   });
 
   return (
-    <TextWidget
-      text={text}
+    <FlexWidget
       style={{
-        fontSize: 10,
-        fontWeight: "bold",
-        color: "#000000",
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
       }}
-    />
+    >
+      <TextWidget
+        text={text}
+        style={{
+          fontSize: 10,
+          fontWeight: "bold",
+          color: "#000000",
+        }}
+      />
+    </FlexWidget>
   );
 }
 
@@ -51,8 +57,6 @@ function Column(props: { label: string; time: number }) {
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
-        backgroundColor: "#ffffff",
-        borderRadius: 4,
       }}
     >
       <TextLabel>{props.label}</TextLabel>
@@ -61,13 +65,26 @@ function Column(props: { label: string; time: number }) {
   );
 }
 
-export function HelloWidget(props: HelloWidgetProps) {
+type HelloWidgetProps = {
+  zone: string;
+  date: Date;
+  fajr: number;
+  syuruk: number;
+  dhuhr: number;
+  asr: number;
+  maghrib: number;
+  isha: number;
+};
+
+export function WaktuSolatWidget(props: HelloWidgetProps) {
   return (
     <FlexWidget
       style={{
+        flex: 1,
+        flexDirection: "column",
         height: "match_parent",
         width: "match_parent",
-        justifyContent: "space-evenly",
+        justifyContent: "space-between",
         alignItems: "flex-start",
         backgroundColor: "#ffffff",
         borderRadius: 5,
@@ -76,23 +93,25 @@ export function HelloWidget(props: HelloWidgetProps) {
     >
       <FlexWidget
         style={{
+          flex: 1,
           flexDirection: "row",
           width: "match_parent",
           justifyContent: "space-between",
         }}
       >
         <TextWidget
-          text={`Date: ${props.zone}`}
+          text={props.date.toDateString()}
           style={{ fontSize: 12, color: "#000000" }}
         />
         <TextWidget
-          text={`Zone: ${props.zone}`}
+          text={props.zone}
           style={{ fontSize: 12, color: "#000000" }}
         />
       </FlexWidget>
 
       <FlexWidget
         style={{
+          flex: 2,
           flexDirection: "row",
           width: "match_parent",
           borderRadius: 4,

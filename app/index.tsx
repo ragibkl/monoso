@@ -1,70 +1,85 @@
-import { Text, View } from "react-native";
-import { useEffect, useState } from "react";
+import { Button, Text, View } from "react-native";
+import { useEffect } from "react";
 
-import { getWaktuSolat, WaktuSolatResponse } from "@/lib/remote/waktusolat";
+import { getWaktuSolatByZone, getZoneByGps } from "@/lib/remote/waktusolat";
 import { useLocation } from "@/lib/hooks/location";
-import { HelloWidget } from "@/lib/widgets/HelloWidget";
+import { WaktuSolatWidget } from "@/lib/widgets/WaktuSolatWidget";
 import { WidgetPreview } from "react-native-android-widget";
+import { useZone } from "@/lib/hooks/zone";
+import { useWaktuSolat } from "@/lib/hooks/waktu";
 
 export default function Index() {
-  const { location } = useLocation();
+  const { location, updateLocation } = useLocation();
+  const { zone, setZone } = useZone();
+  const { waktuSolat, setWaktuSolat, waktuSolatExpired } = useWaktuSolat();
+
   const lat = location?.coords.latitude;
   const lng = location?.coords.longitude;
-
-  const [waktu, setWaktu] = useState<WaktuSolatResponse | null>(null);
-
-  useEffect(() => {
-    async function effect() {
-      if (!lat || !lng) {
-        return;
-      }
-
-      let data = await getWaktuSolat(lat, lng);
-      setWaktu(data);
-    }
-
-    effect();
-  }, [lat, lng]);
-
-  if (!waktu) {
-    return (
-      <View>
-        <Text>Location or WaktuSolat not available</Text>
-        <WidgetPreview
-          renderWidget={() => (
-            <HelloWidget
-              zone="invalid location"
-              fajr={0}
-              syuruk={0}
-              dhuhr={0}
-              asr={0}
-              maghrib={0}
-              isha={0}
-            />
-          )}
-          width={320}
-          height={60}
-        />
-      </View>
-    );
-  }
 
   const date = new Date();
   const day = date.getDay();
 
+  const onPressSetLocation = async () => {
+    await updateLocation();
+  };
+
+  useEffect(() => {
+    async function effect() {
+      if (lat && lng) {
+        const zoneData = await getZoneByGps(lat, lng);
+        setZone(zoneData);
+      }
+    }
+
+    effect();
+  }, [lat, lng, setZone]);
+
+  useEffect(() => {
+    async function effect() {
+      if (!zone) {
+        return;
+      }
+
+      if (waktuSolatExpired(zone.zone)) {
+        let data = await getWaktuSolatByZone(zone.zone);
+        setWaktuSolat(data);
+      }
+    }
+
+    effect();
+  }, [zone, setWaktuSolat, waktuSolatExpired]);
+
+  const zoneText = zone
+    ? `${zone.zone} - ${zone.district}, ${zone.state}`
+    : "invalid location";
+  const prayer = (waktuSolat && waktuSolat.prayers[day]) || {
+    fajr: 0,
+    syuruk: 0,
+    dhuhr: 0,
+    asr: 0,
+    maghrib: 0,
+    isha: 0,
+  };
   return (
     <View style={{ flex: 1 }}>
-      <Text>lat: {location?.coords.latitude}</Text>
-      <Text>lng: {location?.coords.longitude}</Text>
+      <Text>lat: {lat}</Text>
+      <Text>lng: {lng}</Text>
+      <Text>zone: {zoneText}</Text>
+
+      <Button
+        onPress={onPressSetLocation}
+        title="Set Location"
+        color="#841584"
+      />
 
       <View style={{ height: 20 }} />
 
       <WidgetPreview
         renderWidget={() => (
-          <HelloWidget zone={waktu.zone} {...waktu.prayers[day]} />
+          <WaktuSolatWidget zone={zoneText} date={date} {...prayer} />
         )}
         width={320}
-        height={60}
+        height={80}
       />
     </View>
   );

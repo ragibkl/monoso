@@ -47,8 +47,8 @@
         {
           "widgets": [
             {
-              "name": "Hello",
-              "label": "My Hello Widget",
+              "name": "WaktuSolat",
+              "label": "MonoSo WaktuSolat Widget",
               "minWidth": "320dp",
               "minHeight": "60dp",
               "targetCellWidth": 5,
