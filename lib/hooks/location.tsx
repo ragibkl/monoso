@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-
 import * as Location from "expo-location";
+
 import { useCurrentDate } from "./date";
 
 export async function getLocation(): Promise<Location.LocationObject | null> {

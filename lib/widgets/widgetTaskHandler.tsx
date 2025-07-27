@@ -1,15 +1,10 @@
 import React from "react";
 import type { WidgetTaskHandlerProps } from "react-native-android-widget";
 
+import { getOrRetrieveWaktuSolatFromData } from "@/lib/hooks/waktuSolatStore";
+import { getZoneData } from "@/lib/hooks/zone";
+
 import { WaktuSolatWidget } from "./WaktuSolatWidget";
-// import { getWaktuSolatByZone } from "../remote/waktusolat";
-// import {
-//   getWaktuSolatData,
-//   isWaktuSolatExpired,
-//   setWaktuSolatData,
-// } from "../hooks/waktu";
-import { getOrRetrieveWaktuSolatFromData } from "../hooks/waktuSolatStore";
-import { getZoneData } from "../hooks/zone";
 
 async function renderWaktuSolatWidget(props: WidgetTaskHandlerProps) {
   const zone = await getZoneData();

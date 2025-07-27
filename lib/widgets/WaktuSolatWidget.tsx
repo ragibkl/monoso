@@ -1,7 +1,8 @@
 import React from "react";
 import { FlexWidget, TextWidget } from "react-native-android-widget";
-import { ZoneResponse } from "../remote/waktusolat";
-import { PrayerTime } from "../hooks/waktuSolatStore";
+
+import { PrayerTime } from "@/lib/hooks/waktuSolatStore";
+import { ZoneResponse } from "@/lib/remote/waktusolat";
 
 function TextLabel(props: { children: string; bold: boolean }) {
   return (

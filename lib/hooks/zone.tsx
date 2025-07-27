@@ -1,5 +1,4 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { getZoneByGps, ZoneResponse } from "../remote/waktusolat";
 import {
   ReactNode,
   createContext,
@@ -8,6 +7,8 @@ import {
   useEffect,
   useState,
 } from "react";
+
+import { getZoneByGps, ZoneResponse } from "@/lib/remote/waktusolat";
 
 export async function setZoneData(zone: ZoneResponse | null) {
   if (zone) {

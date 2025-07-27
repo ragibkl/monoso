@@ -8,7 +8,11 @@ import {
   useContext,
 } from "react";
 import merge from "deepmerge";
-import { getWaktuSolatByZone, WaktuSolatResponse } from "../remote/waktusolat";
+
+import {
+  getWaktuSolatByZone,
+  WaktuSolatResponse,
+} from "@/lib/remote/waktusolat";
 
 export type PrayerTime = {
   fajr: number;
