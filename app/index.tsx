@@ -1,38 +1,34 @@
-import { Text, View } from "react-native";
 import { useEffect } from "react";
-
-import { getZoneByGps } from "@/lib/remote/waktusolat";
-import { useLocation } from "@/lib/hooks/location";
-import { WaktuSolatWidget } from "@/lib/widgets/WaktuSolatWidget";
+import { Text, View } from "react-native";
 import {
   requestWidgetUpdate,
   WidgetPreview,
 } from "react-native-android-widget";
-import { useZone } from "@/lib/hooks/zone";
-import { useWaktuSolatCurrent } from "@/lib/hooks/waktuSolatCurrent";
+
 import { useCurrentDate } from "@/lib/hooks/date";
+import { useLocation } from "@/lib/hooks/location";
+import { useWaktuSolatCurrent } from "@/lib/hooks/waktuSolatCurrent";
+import { useZone } from "@/lib/hooks/zone";
+import { WaktuSolatWidget } from "@/lib/widgets/WaktuSolatWidget";
 
 export default function Index() {
-  const { updateLocation } = useLocation();
-  const { zone, setZone } = useZone();
+  const { location } = useLocation();
+  const { zone, updateZoneViaGps } = useZone();
   const { waktuSolat } = useWaktuSolatCurrent();
   const { date } = useCurrentDate();
 
   useEffect(() => {
     async function effect() {
-      const location = await updateLocation();
-
       if (location) {
-        const zoneData = await getZoneByGps(
+        await updateZoneViaGps(
           location.coords.latitude,
           location.coords.longitude,
         );
-        setZone(zoneData);
       }
     }
 
     effect();
-  }, [updateLocation, setZone]);
+  }, [location, updateZoneViaGps]);
 
   useEffect(() => {
     if (!zone || !waktuSolat) {

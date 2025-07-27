@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 
 import * as Location from "expo-location";
+import { useCurrentDate } from "./date";
 
 export async function getLocation(): Promise<Location.LocationObject | null> {
   let fgPermission = await Location.requestForegroundPermissionsAsync();
@@ -12,6 +13,7 @@ export async function getLocation(): Promise<Location.LocationObject | null> {
 }
 
 export function useLocation() {
+  const { year, month, day, hour } = useCurrentDate();
   const [location, setLocation] = useState<Location.LocationObject | null>(
     null,
   );
@@ -25,7 +27,7 @@ export function useLocation() {
 
   useEffect(() => {
     updateLocation();
-  }, [updateLocation]);
+  }, [updateLocation, year, month, day, hour]);
 
   return { location, updateLocation };
 }

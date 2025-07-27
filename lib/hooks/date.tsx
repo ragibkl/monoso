@@ -5,6 +5,7 @@ import {
   getDate,
   getYear,
   startOfHour,
+  getHours,
 } from "date-fns";
 import { useEffect, useState, useRef } from "react";
 
@@ -36,5 +37,6 @@ export function useCurrentDate() {
     year: getYear(date),
     month: getMonth(date),
     day: getDate(date),
+    hour: getHours(date),
   };
 }
