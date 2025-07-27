@@ -45,6 +45,13 @@
       [
         "react-native-android-widget",
         {
+          "fonts": [
+            "./assets/fonts/LiberationMono.ttf",
+            "./assets/fonts/LiberationMono-Bold.ttf",
+            "./assets/fonts/LiberationMono-Italic.ttf",
+            "./assets/fonts/LiberationMono-Regular.ttf",
+            "./assets/fonts/LiberationMono-BoldItalic.ttf"
+          ],
           "widgets": [
             {
               "name": "WaktuSolat",

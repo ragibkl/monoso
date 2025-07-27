@@ -18,6 +18,7 @@ function TextLabel(props: { children: string; bold: boolean }) {
         style={{
           fontSize: 10,
           fontWeight: props.bold ? "bold" : "normal",
+          fontFamily: "LiberationMono",
           color: "#000000",
         }}
       />
@@ -46,6 +47,7 @@ function TimeDisplay(props: { children: number; bold: boolean }) {
         style={{
           fontSize: 10,
           fontWeight: props.bold ? "bold" : "normal",
+          fontFamily: "LiberationMono",
           color: "#000000",
         }}
       />
@@ -126,11 +128,19 @@ export function WaktuSolatWidget(props: WaktuSolatWidgetProps) {
       >
         <TextWidget
           text={date.toDateString()}
-          style={{ fontSize: 12, color: "#000000" }}
+          style={{
+            fontSize: 12,
+            color: "#000000",
+            fontFamily: "LiberationMono",
+          }}
         />
         <TextWidget
           text={zoneText}
-          style={{ fontSize: 12, color: "#000000" }}
+          style={{
+            fontSize: 12,
+            color: "#000000",
+            fontFamily: "LiberationMono",
+          }}
         />
       </FlexWidget>
 
