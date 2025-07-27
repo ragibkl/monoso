@@ -2,30 +2,39 @@ import React from "react";
 import type { WidgetTaskHandlerProps } from "react-native-android-widget";
 
 import { WaktuSolatWidget } from "./WaktuSolatWidget";
-import { getWaktuSolatByZone } from "../remote/waktusolat";
-import {
-  getWaktuSolatData,
-  isWaktuSolatExpired,
-  setWaktuSolatData,
-} from "../hooks/waktu";
+// import { getWaktuSolatByZone } from "../remote/waktusolat";
+// import {
+//   getWaktuSolatData,
+//   isWaktuSolatExpired,
+//   setWaktuSolatData,
+// } from "../hooks/waktu";
+import { getOrRetrieveWaktuSolatFromData } from "../hooks/waktuSolatStore";
 import { getZoneData } from "../hooks/zone";
 
 async function renderWaktuSolatWidget(props: WidgetTaskHandlerProps) {
   const zone = await getZoneData();
   if (!zone) {
+    console.log("Zone not set, rendering blank widget");
+    props.renderWidget(<WaktuSolatWidget date={new Date()} />);
     return;
   }
 
   const date = new Date();
-  let waktuSolat = await getWaktuSolatData();
-  if (!waktuSolat || isWaktuSolatExpired(waktuSolat, zone.zone)) {
-    waktuSolat = await getWaktuSolatByZone(zone.zone);
-    await setWaktuSolatData(waktuSolat);
-  }
 
-  const zoneText = `${zone.zone} - ${zone.district}, ${zone.state}`;
-  const prayer = waktuSolat.prayers[date.getDate() - 1];
-  props.renderWidget(<WaktuSolatWidget zone={zoneText} {...prayer} />);
+  const waktuSolat = await getOrRetrieveWaktuSolatFromData(zone.zone, date);
+  if (waktuSolat) {
+    console.log("Found WaktuSolat, rendering widget");
+    props.renderWidget(
+      <WaktuSolatWidget
+        date={date}
+        zone={zone}
+        prayerTime={waktuSolat.prayerTime}
+      />,
+    );
+  } else {
+    console.log("WaktuSolat not found, rendering blank widget");
+    props.renderWidget(<WaktuSolatWidget date={new Date()} />);
+  }
 }
 
 async function waktuSolatWidgetTaskHandler(props: WidgetTaskHandlerProps) {
@@ -34,18 +43,7 @@ async function waktuSolatWidgetTaskHandler(props: WidgetTaskHandlerProps) {
   switch (props.widgetAction) {
     case "WIDGET_ADDED":
       {
-        props.renderWidget(
-          <WaktuSolatWidget
-            zone="invalid location"
-            fajr={0}
-            syuruk={0}
-            dhuhr={0}
-            asr={0}
-            maghrib={0}
-            isha={0}
-          />,
-        );
-
+        props.renderWidget(<WaktuSolatWidget date={new Date()} />);
         await renderWaktuSolatWidget(props);
       }
 

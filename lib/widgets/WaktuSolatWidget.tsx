@@ -1,5 +1,7 @@
 import React from "react";
 import { FlexWidget, TextWidget } from "react-native-android-widget";
+import { ZoneResponse } from "../remote/waktusolat";
+import { PrayerTime } from "../hooks/waktuSolatStore";
 
 function TextLabel(props: { children: string; bold: boolean }) {
   return (
@@ -67,26 +69,37 @@ function Column(props: { label: string; time: number; bold: boolean }) {
   );
 }
 
-type HelloWidgetProps = {
-  zone: string;
-  fajr: number;
-  syuruk: number;
-  dhuhr: number;
-  asr: number;
-  maghrib: number;
-  isha: number;
+type WaktuSolatWidgetProps = {
+  date: Date;
+  zone?: ZoneResponse;
+  prayerTime?: PrayerTime;
 };
 
-export function WaktuSolatWidget(props: HelloWidgetProps) {
-  const date = new Date();
-  const epoch = date.getTime() / 1000;
+export function WaktuSolatWidget(props: WaktuSolatWidgetProps) {
+  const {
+    date,
+    prayerTime: {
+      fajr = 0,
+      syuruk = 0,
+      dhuhr = 0,
+      asr = 0,
+      maghrib = 0,
+      isha = 0,
+    } = {},
+    zone,
+  } = props;
 
-  const fajrBold = epoch >= props.fajr && epoch < props.syuruk;
-  const syurukBold = epoch >= props.syuruk && epoch < props.dhuhr;
-  const dhuhrBold = epoch >= props.dhuhr && epoch < props.asr;
-  const asrBold = epoch >= props.asr && epoch < props.maghrib;
-  const maghribBold = epoch >= props.maghrib && epoch < props.isha;
-  const ishaBold = epoch >= props.isha;
+  const zoneText = zone
+    ? `${zone.zone} - ${zone.district}, ${zone.state}`
+    : "Location not set";
+
+  const epoch = date.getTime() / 1000;
+  const fajrBold = epoch >= fajr && epoch < syuruk;
+  const syurukBold = epoch >= syuruk && epoch < dhuhr;
+  const dhuhrBold = epoch >= dhuhr && epoch < asr;
+  const asrBold = epoch >= asr && epoch < maghrib;
+  const maghribBold = epoch >= maghrib && epoch < isha;
+  const ishaBold = epoch >= isha;
 
   return (
     <FlexWidget
@@ -115,7 +128,7 @@ export function WaktuSolatWidget(props: HelloWidgetProps) {
           style={{ fontSize: 12, color: "#000000" }}
         />
         <TextWidget
-          text={props.zone}
+          text={zoneText}
           style={{ fontSize: 12, color: "#000000" }}
         />
       </FlexWidget>
@@ -131,12 +144,12 @@ export function WaktuSolatWidget(props: HelloWidgetProps) {
           borderWidth: 1,
         }}
       >
-        <Column label="Fajr" time={props.fajr} bold={fajrBold} />
-        <Column label="Syuruk" time={props.syuruk} bold={syurukBold} />
-        <Column label="Dhuhr" time={props.dhuhr} bold={dhuhrBold} />
-        <Column label="Asr" time={props.asr} bold={asrBold} />
-        <Column label="Maghrib" time={props.maghrib} bold={maghribBold} />
-        <Column label="Isha" time={props.isha} bold={ishaBold} />
+        <Column label="Fajr" time={fajr} bold={fajrBold} />
+        <Column label="Syuruk" time={syuruk} bold={syurukBold} />
+        <Column label="Dhuhr" time={dhuhr} bold={dhuhrBold} />
+        <Column label="Asr" time={asr} bold={asrBold} />
+        <Column label="Maghrib" time={maghrib} bold={maghribBold} />
+        <Column label="Isha" time={isha} bold={ishaBold} />
       </FlexWidget>
     </FlexWidget>
   );
