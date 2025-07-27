@@ -57,7 +57,7 @@
               "name": "WaktuSolat",
               "label": "WaktuSolat Widget",
               "minWidth": "320dp",
-              "minHeight": "80dp",
+              "minHeight": "60dp",
               "targetCellWidth": 5,
               "targetCellHeight": 1,
               "description": "MonoSo WaktuSolat Widget",
