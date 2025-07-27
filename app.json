@@ -48,13 +48,13 @@
           "widgets": [
             {
               "name": "WaktuSolat",
-              "label": "MonoSo WaktuSolat Widget",
+              "label": "WaktuSolat Widget",
               "minWidth": "320dp",
-              "minHeight": "60dp",
+              "minHeight": "80dp",
               "targetCellWidth": 5,
               "targetCellHeight": 1,
-              "description": "This is my first widget",
-              "previewImage": "./assets/widget-preview/hello.png",
+              "description": "MonoSo WaktuSolat Widget",
+              "previewImage": "./assets/widget-preview/waktu-solat.png",
               "updatePeriodMillis": 1800000
             }
           ]
