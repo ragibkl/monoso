@@ -1,13 +1,13 @@
 import React from "react";
 import type { WidgetTaskHandlerProps } from "react-native-android-widget";
 
-import { getOrRetrieveWaktuSolatFromData } from "@/lib/hooks/waktuSolatStore";
-import { getZoneData } from "@/lib/hooks/zone";
+import { getOrRetrieveWaktuSolat } from "@/lib/service/waktuSolat";
 
 import { WaktuSolatWidget } from "./WaktuSolatWidget";
+import { zoneStore } from "../data/zoneStore";
 
 async function renderWaktuSolatWidget(props: WidgetTaskHandlerProps) {
-  const zone = await getZoneData();
+  const zone = await zoneStore.load();
   if (!zone) {
     console.log("Zone not set, rendering blank widget");
     props.renderWidget(<WaktuSolatWidget date={new Date()} />);
@@ -16,7 +16,7 @@ async function renderWaktuSolatWidget(props: WidgetTaskHandlerProps) {
 
   const date = new Date();
 
-  const waktuSolat = await getOrRetrieveWaktuSolatFromData(zone.zone, date);
+  const waktuSolat = await getOrRetrieveWaktuSolat(zone.zone, date);
   if (waktuSolat) {
     console.log("Found WaktuSolat, rendering widget");
     props.renderWidget(

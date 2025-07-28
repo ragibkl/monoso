@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import * as Location from "expo-location";
 
-import { useCurrentDate } from "./date";
+import { useCurrentDate } from "@/lib/hooks/date";
 
 export async function getLocation(): Promise<Location.LocationObject | null> {
   let fgPermission = await Location.requestForegroundPermissionsAsync();

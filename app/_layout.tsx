@@ -1,14 +1,14 @@
 import { Stack } from "expo-router";
 
-import { ZoneProvider } from "@/lib/hooks/zone";
-import { WaktuSolatStoreProvider } from "@/lib/hooks/waktuSolatStore";
+import { waktuSolatStore } from "@/lib/data/waktuSolatStore";
+import { zoneStore } from "@/lib/data/zoneStore";
 
 export default function RootLayout() {
   return (
-    <WaktuSolatStoreProvider>
-      <ZoneProvider>
+    <waktuSolatStore.Provider>
+      <zoneStore.Provider>
         <Stack />
-      </ZoneProvider>
-    </WaktuSolatStoreProvider>
+      </zoneStore.Provider>
+    </waktuSolatStore.Provider>
   );
 }

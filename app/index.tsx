@@ -6,8 +6,8 @@ import {
 } from "react-native-android-widget";
 
 import { useCurrentDate } from "@/lib/hooks/date";
-import { useLocation } from "@/lib/hooks/location";
-import { useWaktuSolatCurrent } from "@/lib/hooks/waktuSolatCurrent";
+import { useLocation } from "@/lib/service/location";
+import { useWaktuSolatCurrent } from "@/lib/hooks/waktuSolat";
 import { useZone } from "@/lib/hooks/zone";
 import { WaktuSolatWidget } from "@/lib/widgets/WaktuSolatWidget";
 

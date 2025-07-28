@@ -1,0 +1,60 @@
+import { useCallback, useEffect, useState } from "react";
+
+import { waktuSolatStore, WaktuSolat } from "../data/waktuSolatStore";
+import { getWaktuSolatByZone } from "../remote/waktusolat";
+import {
+  getWaktuSolatFromStore,
+  mergeWaktuSolatResponseIntoStore,
+} from "../service/waktuSolat";
+import { useCurrentDate } from "./date";
+import { useZone } from "./zone";
+
+export function useWaktuSolat() {
+  const { data, setData } = waktuSolatStore.use();
+
+  const getOrRetrieveWaktuSolat = useCallback(
+    async (zone: string, date: Date): Promise<WaktuSolat | null> => {
+      const waktuSolat = getWaktuSolatFromStore(data, zone, date);
+      if (waktuSolat) {
+        console.log(`Found WaktuSolat from store. zone=${zone} date=${date}`);
+        return waktuSolat;
+      }
+
+      console.log(`Fetch new WaktuSolat from api. zone=${zone} date=${date}`);
+      const res = await getWaktuSolatByZone(zone);
+      const newStore = mergeWaktuSolatResponseIntoStore(data, res);
+
+      console.log(`Update WaktuSolat into store`);
+      setData(newStore);
+
+      return getWaktuSolatFromStore(newStore, zone, date);
+    },
+    [data, setData],
+  );
+
+  return { getOrRetrieveWaktuSolat };
+}
+
+export function useWaktuSolatCurrent() {
+  const { day, month, year } = useCurrentDate();
+  const { getOrRetrieveWaktuSolat } = useWaktuSolat();
+  const { zone } = useZone();
+
+  const [waktuSolat, setWaktuSolat] = useState<WaktuSolat | null>(null);
+
+  useEffect(() => {
+    async function effect() {
+      if (zone) {
+        const date = new Date(year, month, day);
+        const w = await getOrRetrieveWaktuSolat(zone.zone, date);
+        if (w) {
+          setWaktuSolat(w);
+        }
+      }
+    }
+
+    effect();
+  }, [zone, getOrRetrieveWaktuSolat, year, month, day]);
+
+  return { waktuSolat };
+}
