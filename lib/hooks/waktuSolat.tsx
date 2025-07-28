@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 
-import { waktuSolatStore, WaktuSolat } from "../data/waktuSolatStore";
-import { getWaktuSolatByZone } from "../remote/waktusolat";
+import { waktuSolatStore, WaktuSolat } from "@/lib/data/waktuSolatStore";
+import { getWaktuSolatByZone } from "@/lib/remote/waktusolat";
 import {
   getWaktuSolatFromStore,
   mergeWaktuSolatResponseIntoStore,
-} from "../service/waktuSolat";
+} from "@/lib/service/waktuSolat";
 import { useCurrentDate } from "./date";
 import { useZone } from "./zone";
 
@@ -32,7 +32,7 @@ export function useWaktuSolat() {
     [data, setData],
   );
 
-  return { getOrRetrieveWaktuSolat };
+  return { setWaktuSolatData: setData, getOrRetrieveWaktuSolat };
 }
 
 export function useWaktuSolatCurrent() {
@@ -50,6 +50,8 @@ export function useWaktuSolatCurrent() {
         if (w) {
           setWaktuSolat(w);
         }
+      } else {
+        setWaktuSolat(null);
       }
     }
 

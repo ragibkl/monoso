@@ -13,17 +13,28 @@ type ProviderProps = {
 };
 
 export function createDataStore<T>(dataKey: string, initialValue: T) {
+  let changeListeners: (() => Promise<void>)[] = [];
+
+  async function emitChange() {
+    await Promise.all(changeListeners.map((listener) => listener()));
+  }
+
+  async function saveInner(data: T): Promise<void> {
+    const json = JSON.stringify(data);
+    await AsyncStorage.setItem(dataKey, json);
+  }
+
+  async function save(data: T): Promise<void> {
+    await saveInner(data);
+    emitChange();
+  }
+
   async function load(): Promise<T> {
     const json = await AsyncStorage.getItem(dataKey);
     if (!json) {
       return initialValue;
     }
     return JSON.parse(json) as T;
-  }
-
-  async function save(data: T): Promise<void> {
-    const json = JSON.stringify(data);
-    await AsyncStorage.setItem(dataKey, json);
   }
 
   const DataContext = createContext<T>(initialValue);
@@ -33,18 +44,25 @@ export function createDataStore<T>(dataKey: string, initialValue: T) {
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [data, setDataState] = useState<T>(initialValue);
 
-    useEffect(() => {
-      async function effect() {
-        const dataLoad = await load();
-        setDataState(dataLoad);
-        setIsLoading(false);
-      }
-
-      effect();
+    const loadDataToState = useCallback(async () => {
+      const dataLoad = await load();
+      setDataState(dataLoad);
+      setIsLoading(false);
     }, []);
 
+    useEffect(() => {
+      loadDataToState();
+    }, [loadDataToState]);
+
+    useEffect(() => {
+      changeListeners.push(loadDataToState);
+      return () => {
+        changeListeners = changeListeners.filter((l) => l !== loadDataToState);
+      };
+    }, [loadDataToState]);
+
     const setData = useCallback(async (newData: T) => {
-      await save(newData);
+      await saveInner(newData);
       setDataState(newData);
     }, []);
 

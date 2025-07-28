@@ -4,7 +4,7 @@ import type { WidgetTaskHandlerProps } from "react-native-android-widget";
 import { getOrRetrieveWaktuSolat } from "@/lib/service/waktuSolat";
 
 import { WaktuSolatWidget } from "./WaktuSolatWidget";
-import { zoneStore } from "../data/zoneStore";
+import { zoneStore } from "@/lib/data/zoneStore";
 
 async function renderWaktuSolatWidget(props: WidgetTaskHandlerProps) {
   const zone = await zoneStore.load();

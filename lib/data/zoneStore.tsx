@@ -1,4 +1,5 @@
-import { ZoneResponse } from "../remote/waktusolat";
+import { ZoneResponse } from "@/lib/remote/waktusolat";
+
 import { createDataStore } from "./dataStore";
 
 export const zoneStore = createDataStore<ZoneResponse | null>(

@@ -10,12 +10,17 @@ import { useLocation } from "@/lib/service/location";
 import { useWaktuSolatCurrent } from "@/lib/hooks/waktuSolat";
 import { useZone } from "@/lib/hooks/zone";
 import { WaktuSolatWidget } from "@/lib/widgets/WaktuSolatWidget";
+import { registerUpdateWaktuSolatWidgetTask } from "@/lib/tasks/waktuSolatWidgetTask";
 
 export default function Index() {
   const { location } = useLocation();
   const { zone, updateZoneViaGps } = useZone();
   const { waktuSolat } = useWaktuSolatCurrent();
   const { date } = useCurrentDate();
+
+  useEffect(() => {
+    registerUpdateWaktuSolatWidgetTask();
+  }, []);
 
   useEffect(() => {
     async function effect() {

@@ -3,10 +3,10 @@ import * as TaskManager from "expo-task-manager";
 import React from "react";
 import { requestWidgetUpdate } from "react-native-android-widget";
 
-import { getLocation } from "../service/location";
-import { getOrRetrieveWaktuSolat } from "../service/waktuSolat";
-import { WaktuSolatWidget } from "../widgets/WaktuSolatWidget";
-import { zoneStore } from "../data/zoneStore";
+import { getLocation } from "@/lib/service/location";
+import { getOrRetrieveWaktuSolat } from "@/lib/service/waktuSolat";
+import { WaktuSolatWidget } from "@/lib/widgets/WaktuSolatWidget";
+import { zoneStore } from "@/lib/data/zoneStore";
 import { updateZoneViaGps } from "@/lib/service/zone";
 
 const TASK_NAME = "update-waktu-solat-widget";
@@ -66,8 +66,15 @@ TaskManager.defineTask(TASK_NAME, async () => {
 });
 
 export async function registerUpdateWaktuSolatWidgetTask() {
-  if (!TaskManager.isTaskRegisteredAsync(TASK_NAME)) {
-    return BackgroundTask.registerTaskAsync(TASK_NAME, {
+  const status = await BackgroundTask.getStatusAsync();
+  console.log("BackgroundTask.getStatusAsync()", status);
+
+  const registered = await TaskManager.isTaskRegisteredAsync(TASK_NAME);
+  console.log(`Task: ${TASK_NAME} - registered: ${registered}`);
+
+  if (!registered) {
+    console.log(`Task: ${TASK_NAME} - registerTaskAsync`);
+    await BackgroundTask.registerTaskAsync(TASK_NAME, {
       minimumInterval: 15,
     });
   }
