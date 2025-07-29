@@ -15,9 +15,7 @@ import { WaktuSolatWidget } from "@/lib/widgets/WaktuSolatWidget";
 const BG_TASK = "update-waktu-solat-widget";
 const NOTIF_TASK = "waktu-solat-notifications-task";
 
-async function getUpdatedZone(): Promise<[Zone | null, boolean]> {
-  const prevZone = await zoneStore.load();
-
+async function getUpdatedZone(): Promise<Zone | null> {
   const location = await getLocation();
   if (location) {
     const zone = await updateZoneViaGps(
@@ -25,10 +23,10 @@ async function getUpdatedZone(): Promise<[Zone | null, boolean]> {
       location.coords.longitude,
     );
 
-    return [zone, prevZone?.zone !== zone.zone];
+    return zone;
   }
 
-  return [prevZone, false];
+  return await zoneStore.load();
 }
 
 async function requestWaktuSolatWidgetUpdate(
@@ -96,64 +94,51 @@ async function scheduleNextPrayerTime(prayerTime: PrayerTime, date: Date) {
   }
 }
 
-TaskManager.defineTask(BG_TASK, async () => {
-  try {
-    const date = startOfMinute(new Date());
-    console.log(`${date.toISOString()}: Start background task`);
+async function setupWaktuSolat(updateZone: boolean, updateNotifs: boolean) {
+  const date = startOfMinute(new Date());
 
-    const [zone] = await getUpdatedZone();
-    if (!zone) {
-      console.log("Zone not set, returning");
-      return BackgroundTask.BackgroundTaskResult.Success;
-    }
+  const zone = updateZone ? await getUpdatedZone() : await zoneStore.load();
+  if (!zone) {
+    return;
+  }
 
-    const waktuSolat = await getOrRetrieveWaktuSolat(zone.zone, date);
-    if (!waktuSolat) {
-      console.log("WaktuSolat not found, returning");
-      return BackgroundTask.BackgroundTaskResult.Success;
-    }
+  const waktuSolat = await getOrRetrieveWaktuSolat(zone.zone, date);
+  if (!waktuSolat) {
+    return;
+  }
 
-    console.log("Found WaktuSolat, updating widget");
-    await requestWaktuSolatWidgetUpdate(date, zone, waktuSolat.prayerTime);
+  await requestWaktuSolatWidgetUpdate(date, zone, waktuSolat.prayerTime);
 
-    console.log("Cancel all notifications");
+  if (updateNotifs) {
     await Notifications.cancelAllScheduledNotificationsAsync();
     await scheduleNextPrayerTime(waktuSolat.prayerTime, date);
+  }
+}
+
+TaskManager.defineTask(BG_TASK, async () => {
+  try {
+    console.log("Start background task");
+    await setupWaktuSolat(true, true);
   } catch (error) {
     console.error("Failed background task:", error);
     return BackgroundTask.BackgroundTaskResult.Failed;
   }
 
+  console.log("Completed background task");
   return BackgroundTask.BackgroundTaskResult.Success;
 });
 
 TaskManager.defineTask<Notifications.NotificationTaskPayload>(
   NOTIF_TASK,
-  async ({ data, error, executionInfo }) => {
+  async (payload) => {
     try {
-      const date = startOfMinute(new Date());
-      console.log(`${date.toISOString()}: Start notif task`);
-
-      const zone = await zoneStore.load();
-      if (!zone) {
-        console.log("Zone not set, returning");
-        return BackgroundTask.BackgroundTaskResult.Success;
-      }
-
-      const waktuSolat = await getOrRetrieveWaktuSolat(zone.zone, date);
-      if (!waktuSolat) {
-        console.log("WaktuSolat not found, returning");
-        return BackgroundTask.BackgroundTaskResult.Success;
-      }
-
-      console.log("Found WaktuSolat, updating widget");
-      await requestWaktuSolatWidgetUpdate(date, zone, waktuSolat.prayerTime);
+      console.log("Start notification task", payload);
+      await setupWaktuSolat(false, false);
     } catch (error) {
-      console.error("Failed background task:", error);
-      return BackgroundTask.BackgroundTaskResult.Failed;
+      console.error("Failed notification task:", error);
     }
 
-    return BackgroundTask.BackgroundTaskResult.Success;
+    console.log("Completed notification task");
   },
 );
 
@@ -173,5 +158,6 @@ export async function registerUpdateWaktuSolatWidgetTask() {
 
   await Notifications.registerTaskAsync(NOTIF_TASK);
   await Notifications.requestPermissionsAsync();
-  await Notifications.cancelAllScheduledNotificationsAsync();
+
+  await setupWaktuSolat(false, true);
 }
