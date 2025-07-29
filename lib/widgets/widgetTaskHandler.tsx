@@ -1,3 +1,4 @@
+import { startOfMinute } from "date-fns";
 import React from "react";
 import type { WidgetTaskHandlerProps } from "react-native-android-widget";
 
@@ -14,7 +15,7 @@ async function renderWaktuSolatWidget(props: WidgetTaskHandlerProps) {
     return;
   }
 
-  const date = new Date();
+  const date = startOfMinute(new Date());
 
   const waktuSolat = await getOrRetrieveWaktuSolat(zone.zone, date);
   if (waktuSolat) {
@@ -28,7 +29,7 @@ async function renderWaktuSolatWidget(props: WidgetTaskHandlerProps) {
     );
   } else {
     console.log("WaktuSolat not found, rendering blank widget");
-    props.renderWidget(<WaktuSolatWidget date={new Date()} />);
+    props.renderWidget(<WaktuSolatWidget date={date} />);
   }
 }
 
@@ -37,7 +38,7 @@ async function waktuSolatWidgetTaskHandler(props: WidgetTaskHandlerProps) {
 
   switch (props.widgetAction) {
     case "WIDGET_ADDED":
-      props.renderWidget(<WaktuSolatWidget date={new Date()} />);
+      props.renderWidget(<WaktuSolatWidget date={startOfMinute(new Date())} />);
       await renderWaktuSolatWidget(props);
       break;
 
