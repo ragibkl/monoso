@@ -1,31 +1,33 @@
 import {
   differenceInMilliseconds,
-  addHours,
   getMonth,
   getDate,
   getYear,
-  startOfHour,
   getHours,
+  startOfMinute,
+  addMinutes,
+  getMinutes,
 } from "date-fns";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 
-function msUntilNextHour() {
+function msUntilNextMinute() {
   const now = new Date();
-  const next = addHours(startOfHour(now), 1);
+  const next = addMinutes(startOfMinute(now), 1);
   return differenceInMilliseconds(next, now);
 }
 
 export function useCurrentDate() {
-  const [date, setDate] = useState(startOfHour(new Date()));
   const timer = useRef(0);
+  const [time, setTime] = useState(startOfMinute(new Date()).getTime());
+  const date = useMemo(() => new Date(time), [time]);
 
   useEffect(() => {
     function delayedTimeChange() {
       timer.current = setTimeout(() => {
         delayedTimeChange();
-      }, msUntilNextHour());
+      }, msUntilNextMinute());
 
-      setDate(new Date(startOfHour(new Date())));
+      setTime(startOfMinute(new Date()).getTime());
     }
 
     delayedTimeChange();
@@ -34,9 +36,11 @@ export function useCurrentDate() {
 
   return {
     date,
+    time,
     year: getYear(date),
     month: getMonth(date),
     day: getDate(date),
     hour: getHours(date),
+    minute: getMinutes(date),
   };
 }

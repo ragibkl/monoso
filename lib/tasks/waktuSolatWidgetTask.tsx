@@ -1,3 +1,4 @@
+import { startOfMinute } from "date-fns";
 import * as BackgroundTask from "expo-background-task";
 import * as Notifications from "expo-notifications";
 import * as TaskManager from "expo-task-manager";
@@ -30,7 +31,11 @@ async function getUpdatedZone(): Promise<[Zone | null, boolean]> {
   return [prevZone, false];
 }
 
-async function reRenderWidget(date: Date, zone: Zone, prayerTime: PrayerTime) {
+async function requestWaktuSolatWidgetUpdate(
+  date: Date,
+  zone: Zone,
+  prayerTime: PrayerTime,
+) {
   await requestWidgetUpdate({
     widgetName: "WaktuSolat",
     renderWidget: () => (
@@ -77,6 +82,7 @@ function getNextPrayerTime(
 async function scheduleNextPrayerTime(prayerTime: PrayerTime, date: Date) {
   const nextTime = getNextPrayerTime(prayerTime, date);
   if (nextTime) {
+    console.log("Schedule nextTime", nextTime);
     await Notifications.scheduleNotificationAsync({
       content: {
         title: `Waktu Solat - ${nextTime[0]}`,
@@ -92,7 +98,7 @@ async function scheduleNextPrayerTime(prayerTime: PrayerTime, date: Date) {
 
 TaskManager.defineTask(BG_TASK, async () => {
   try {
-    const date = new Date();
+    const date = startOfMinute(new Date());
     console.log(`${date.toISOString()}: Start background task`);
 
     const [zone, updatedZone] = await getUpdatedZone();
@@ -108,13 +114,15 @@ TaskManager.defineTask(BG_TASK, async () => {
     }
 
     console.log("Found WaktuSolat, updating widget");
-    await reRenderWidget(date, zone, waktuSolat.prayerTime);
+    await requestWaktuSolatWidgetUpdate(date, zone, waktuSolat.prayerTime);
 
     if (updatedZone) {
+      console.log("Cancel all notifications");
       await Notifications.cancelAllScheduledNotificationsAsync();
       await scheduleNextPrayerTime(waktuSolat.prayerTime, date);
     } else {
       const notifs = await Notifications.getAllScheduledNotificationsAsync();
+      console.log("notifs.length", notifs.length);
       if (!notifs.length) {
         await scheduleNextPrayerTime(waktuSolat.prayerTime, date);
       }
@@ -129,7 +137,7 @@ TaskManager.defineTask(BG_TASK, async () => {
 
 TaskManager.defineTask(NOTIF_TASK, async () => {
   try {
-    const date = new Date();
+    const date = startOfMinute(new Date());
     console.log(`${date.toISOString()}: Start notif task`);
 
     const zone = await zoneStore.load();
@@ -145,7 +153,7 @@ TaskManager.defineTask(NOTIF_TASK, async () => {
     }
 
     console.log("Found WaktuSolat, updating widget");
-    await reRenderWidget(date, zone, waktuSolat.prayerTime);
+    await requestWaktuSolatWidgetUpdate(date, zone, waktuSolat.prayerTime);
   } catch (error) {
     console.error("Failed background task:", error);
     return BackgroundTask.BackgroundTaskResult.Failed;
@@ -168,5 +176,5 @@ export async function registerUpdateWaktuSolatWidgetTask() {
     minimumInterval: 15,
   });
 
-  Notifications.registerTaskAsync(NOTIF_TASK);
+  await Notifications.registerTaskAsync(NOTIF_TASK);
 }

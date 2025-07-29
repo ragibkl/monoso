@@ -36,7 +36,7 @@ export function useWaktuSolat() {
 }
 
 export function useWaktuSolatCurrent() {
-  const { day, month, year } = useCurrentDate();
+  const { date } = useCurrentDate();
   const { getOrRetrieveWaktuSolat } = useWaktuSolat();
   const { zone } = useZone();
 
@@ -45,7 +45,6 @@ export function useWaktuSolatCurrent() {
   useEffect(() => {
     async function effect() {
       if (zone) {
-        const date = new Date(year, month, day);
         const w = await getOrRetrieveWaktuSolat(zone.zone, date);
         if (w) {
           setWaktuSolat(w);
@@ -56,7 +55,7 @@ export function useWaktuSolatCurrent() {
     }
 
     effect();
-  }, [zone, getOrRetrieveWaktuSolat, year, month, day]);
+  }, [zone, getOrRetrieveWaktuSolat, date]);
 
   return { waktuSolat };
 }

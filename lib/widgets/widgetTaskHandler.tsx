@@ -37,17 +37,12 @@ async function waktuSolatWidgetTaskHandler(props: WidgetTaskHandlerProps) {
 
   switch (props.widgetAction) {
     case "WIDGET_ADDED":
-      {
-        props.renderWidget(<WaktuSolatWidget date={new Date()} />);
-        await renderWaktuSolatWidget(props);
-      }
-
+      props.renderWidget(<WaktuSolatWidget date={new Date()} />);
+      await renderWaktuSolatWidget(props);
       break;
 
     case "WIDGET_UPDATE":
-      {
-        await renderWaktuSolatWidget(props);
-      }
+      await renderWaktuSolatWidget(props);
       break;
 
     case "WIDGET_RESIZED":
@@ -70,15 +65,12 @@ async function waktuSolatWidgetTaskHandler(props: WidgetTaskHandlerProps) {
   }
 }
 
-const nameToTaskHandler = {
-  // WaktuSolat will be the **name** with which we will reference our widget.
-  WaktuSolat: waktuSolatWidgetTaskHandler,
-};
-
 export async function widgetTaskHandler(props: WidgetTaskHandlerProps) {
-  const widgetInfo = props.widgetInfo;
-  const handler =
-    nameToTaskHandler[widgetInfo.widgetName as keyof typeof nameToTaskHandler];
-
-  await handler(props);
+  switch (props.widgetInfo.widgetName) {
+    case "WaktuSolat":
+      await waktuSolatWidgetTaskHandler(props);
+      break;
+    default:
+      break;
+  }
 }
