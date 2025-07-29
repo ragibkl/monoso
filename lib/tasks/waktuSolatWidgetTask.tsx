@@ -101,7 +101,7 @@ TaskManager.defineTask(BG_TASK, async () => {
     const date = startOfMinute(new Date());
     console.log(`${date.toISOString()}: Start background task`);
 
-    const [zone, updatedZone] = await getUpdatedZone();
+    const [zone] = await getUpdatedZone();
     if (!zone) {
       console.log("Zone not set, returning");
       return BackgroundTask.BackgroundTaskResult.Success;
@@ -116,57 +116,52 @@ TaskManager.defineTask(BG_TASK, async () => {
     console.log("Found WaktuSolat, updating widget");
     await requestWaktuSolatWidgetUpdate(date, zone, waktuSolat.prayerTime);
 
-    if (updatedZone) {
-      console.log("Cancel all notifications");
-      await Notifications.cancelAllScheduledNotificationsAsync();
-      await scheduleNextPrayerTime(waktuSolat.prayerTime, date);
-    } else {
-      const notifs = await Notifications.getAllScheduledNotificationsAsync();
-      console.log("notifs.length", notifs.length);
-      if (!notifs.length) {
-        await scheduleNextPrayerTime(waktuSolat.prayerTime, date);
+    console.log("Cancel all notifications");
+    await Notifications.cancelAllScheduledNotificationsAsync();
+    await scheduleNextPrayerTime(waktuSolat.prayerTime, date);
+  } catch (error) {
+    console.error("Failed background task:", error);
+    return BackgroundTask.BackgroundTaskResult.Failed;
+  }
+
+  return BackgroundTask.BackgroundTaskResult.Success;
+});
+
+TaskManager.defineTask<Notifications.NotificationTaskPayload>(
+  NOTIF_TASK,
+  async ({ data, error, executionInfo }) => {
+    try {
+      const date = startOfMinute(new Date());
+      console.log(`${date.toISOString()}: Start notif task`);
+
+      const zone = await zoneStore.load();
+      if (!zone) {
+        console.log("Zone not set, returning");
+        return BackgroundTask.BackgroundTaskResult.Success;
       }
-    }
-  } catch (error) {
-    console.error("Failed background task:", error);
-    return BackgroundTask.BackgroundTaskResult.Failed;
-  }
 
-  return BackgroundTask.BackgroundTaskResult.Success;
-});
+      const waktuSolat = await getOrRetrieveWaktuSolat(zone.zone, date);
+      if (!waktuSolat) {
+        console.log("WaktuSolat not found, returning");
+        return BackgroundTask.BackgroundTaskResult.Success;
+      }
 
-TaskManager.defineTask(NOTIF_TASK, async () => {
-  try {
-    const date = startOfMinute(new Date());
-    console.log(`${date.toISOString()}: Start notif task`);
-
-    const zone = await zoneStore.load();
-    if (!zone) {
-      console.log("Zone not set, returning");
-      return BackgroundTask.BackgroundTaskResult.Success;
+      console.log("Found WaktuSolat, updating widget");
+      await requestWaktuSolatWidgetUpdate(date, zone, waktuSolat.prayerTime);
+    } catch (error) {
+      console.error("Failed background task:", error);
+      return BackgroundTask.BackgroundTaskResult.Failed;
     }
 
-    const waktuSolat = await getOrRetrieveWaktuSolat(zone.zone, date);
-    if (!waktuSolat) {
-      console.log("WaktuSolat not found, returning");
-      return BackgroundTask.BackgroundTaskResult.Success;
-    }
-
-    console.log("Found WaktuSolat, updating widget");
-    await requestWaktuSolatWidgetUpdate(date, zone, waktuSolat.prayerTime);
-  } catch (error) {
-    console.error("Failed background task:", error);
-    return BackgroundTask.BackgroundTaskResult.Failed;
-  }
-
-  return BackgroundTask.BackgroundTaskResult.Success;
-});
+    return BackgroundTask.BackgroundTaskResult.Success;
+  },
+);
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowBanner: true,
-    shouldShowList: false,
-    shouldPlaySound: false,
+    shouldShowList: true,
+    shouldPlaySound: true,
     shouldSetBadge: false,
   }),
 });
@@ -177,4 +172,6 @@ export async function registerUpdateWaktuSolatWidgetTask() {
   });
 
   await Notifications.registerTaskAsync(NOTIF_TASK);
+  await Notifications.requestPermissionsAsync();
+  await Notifications.cancelAllScheduledNotificationsAsync();
 }
