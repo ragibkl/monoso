@@ -1,8 +1,9 @@
-import { ZoneResponse } from "@/lib/remote/waktusolat";
-
 import { createDataStore } from "./dataStore";
 
-export const zoneStore = createDataStore<ZoneResponse | null>(
-  "ZONE_DATA_KEY",
-  null,
-);
+export type Zone = {
+  zone: string;
+  state: string;
+  district: string;
+};
+
+export const zoneStore = createDataStore<Zone | null>("ZONE_DATA_KEY", null);

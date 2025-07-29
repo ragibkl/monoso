@@ -2,7 +2,7 @@ import React from "react";
 import { FlexWidget, TextWidget } from "react-native-android-widget";
 
 import { PrayerTime } from "@/lib/data/waktuSolatStore";
-import { ZoneResponse } from "@/lib/remote/waktusolat";
+import { Zone } from "@/lib/data/zoneStore";
 
 function TextLabel(props: { children: string; bold: boolean }) {
   return (
@@ -74,7 +74,7 @@ function Column(props: { label: string; time: number; bold: boolean }) {
 
 type WaktuSolatWidgetProps = {
   date: Date;
-  zone?: ZoneResponse;
+  zone?: Zone;
   prayerTime?: PrayerTime;
 };
 

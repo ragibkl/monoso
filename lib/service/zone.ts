@@ -1,20 +1,19 @@
 import PolygonLookup from "polygon-lookup";
 
-import { zoneStore } from "@/lib/data/zoneStore";
-import { ZoneResponse } from "@/lib/remote/waktusolat";
+import { zoneStore, Zone } from "@/lib/data/zoneStore";
 
 import jakimGeoData from "@/assets/geodata/malaysia-district-jakim.json";
 
 const lookup = new PolygonLookup(jakimGeoData as any);
 
-export function lookupZoneByGps(lat: number, lng: number): ZoneResponse | null {
+export function lookupZoneByGps(lat: number, lng: number): Zone | null {
   const result = lookup.search(lng, lat);
-  console.log("lookupJakimZone", lat, lng, result);
+  console.log("lookupZoneByGps", lat, lng, result);
   if (!result || !result.properties) {
     return null;
   }
 
-  console.log("lookupJakimZone - properties", result.properties);
+  console.log("lookupZoneByGps - properties", result.properties);
   const zone = result.properties.jakim_code;
   const state = result.properties.state;
   const district = result.properties.name;
@@ -29,8 +28,8 @@ export function lookupZoneByGps(lat: number, lng: number): ZoneResponse | null {
 export async function updateZoneViaGps(
   lat: number,
   lng: number,
-): Promise<ZoneResponse> {
+): Promise<Zone> {
   const zoneData = lookupZoneByGps(lat, lng);
   await zoneStore.save(zoneData);
-  return zoneData as ZoneResponse;
+  return zoneData as Zone;
 }
