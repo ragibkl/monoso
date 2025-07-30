@@ -1,12 +1,14 @@
 import { startOfMinute } from "date-fns";
 import * as Notifications from "expo-notifications";
 
-import { WaktuSolat } from "../data/waktuSolatStore";
-import { zoneStore } from "../data/zoneStore";
-import { requestWaktuSolatWidgetUpdate } from "../widgets/WaktuSolatWidget";
+import { WaktuSolat } from "@/lib/data/waktuSolatStore";
+import { zoneStore } from "@/lib/data/zoneStore";
+import { requestWaktuSolatWidgetUpdate } from "@/lib/widgets/WaktuSolatWidget";
 
 import { getNextPrayerTime, getOrRetrieveWaktuSolat } from "./waktuSolat";
 import { getUpdatedZone } from "./zone";
+
+export const WAKTU_SOLAT_NOTIFICATION_CHANNEL = "waktu_solat";
 
 async function schedulePrayerNotification(waktuSolat: WaktuSolat, date: Date) {
   const nextTime = getNextPrayerTime(waktuSolat, date);
@@ -19,6 +21,7 @@ async function schedulePrayerNotification(waktuSolat: WaktuSolat, date: Date) {
       trigger: {
         type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
         seconds: nextTime[1],
+        channelId: WAKTU_SOLAT_NOTIFICATION_CHANNEL,
         repeats: false,
       },
     });
