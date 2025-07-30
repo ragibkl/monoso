@@ -1,19 +1,11 @@
-import { useState, useEffect, useCallback } from "react";
 import * as Location from "expo-location";
+import { useState, useEffect, useCallback } from "react";
 
 import { useCurrentDate } from "@/lib/hooks/date";
-
-export async function getLocation(): Promise<Location.LocationObject | null> {
-  let fgPermission = await Location.requestForegroundPermissionsAsync();
-  if (fgPermission.status !== "granted") {
-    return null;
-  }
-
-  return await Location.getCurrentPositionAsync({});
-}
+import { getLocation } from "@/lib/service/location";
 
 export function useLocation() {
-  const { year, month, day, hour } = useCurrentDate();
+  const { date } = useCurrentDate();
   const [location, setLocation] = useState<Location.LocationObject | null>(
     null,
   );
@@ -27,7 +19,7 @@ export function useLocation() {
 
   useEffect(() => {
     updateLocation();
-  }, [updateLocation, year, month, day, hour]);
+  }, [updateLocation, date]);
 
   return { location, updateLocation };
 }

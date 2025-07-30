@@ -3,6 +3,7 @@ import PolygonLookup from "polygon-lookup";
 import { zoneStore, Zone } from "@/lib/data/zoneStore";
 
 import jakimGeoData from "@/assets/geodata/malaysia-district-jakim.json";
+import { getLocation } from "./location";
 
 const lookup = new PolygonLookup(jakimGeoData as any);
 
@@ -32,4 +33,18 @@ export async function updateZoneViaGps(
   const zoneData = lookupZoneByGps(lat, lng);
   await zoneStore.save(zoneData);
   return zoneData as Zone;
+}
+
+export async function getUpdatedZone(): Promise<Zone | null> {
+  const location = await getLocation();
+  if (location) {
+    const zone = await updateZoneViaGps(
+      location.coords.latitude,
+      location.coords.longitude,
+    );
+
+    return zone;
+  }
+
+  return await zoneStore.load();
 }

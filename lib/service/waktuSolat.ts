@@ -72,3 +72,27 @@ export async function getOrRetrieveWaktuSolat(zone: string, date: Date) {
 
   return getWaktuSolatFromStore(newStore, zone, date);
 }
+
+export function getNextPrayerTime(
+  waktuSolat: WaktuSolat,
+  date: Date,
+): [string, number] | null {
+  const { fajr, syuruk, dhuhr, asr, maghrib, isha } = waktuSolat.prayerTime;
+  const epoch = date.getTime() / 1000;
+
+  if (epoch < fajr) {
+    return ["fajr", fajr - epoch];
+  } else if (epoch < syuruk) {
+    return ["syuruk", syuruk - epoch];
+  } else if (epoch < dhuhr) {
+    return ["dhuhr", dhuhr - epoch];
+  } else if (epoch < asr) {
+    return ["asr", asr - epoch];
+  } else if (epoch < maghrib) {
+    return ["maghrib", maghrib - epoch];
+  } else if (epoch < isha) {
+    return ["isha", isha - epoch];
+  } else {
+    return null;
+  }
+}

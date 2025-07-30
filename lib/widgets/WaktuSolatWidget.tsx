@@ -1,5 +1,9 @@
 import React from "react";
-import { FlexWidget, TextWidget } from "react-native-android-widget";
+import {
+  FlexWidget,
+  requestWidgetUpdate,
+  TextWidget,
+} from "react-native-android-widget";
 
 import { PrayerTime } from "@/lib/data/waktuSolatStore";
 import { Zone } from "@/lib/data/zoneStore";
@@ -164,4 +168,18 @@ export function WaktuSolatWidget(props: WaktuSolatWidgetProps) {
       </FlexWidget>
     </FlexWidget>
   );
+}
+
+export async function requestWaktuSolatWidgetUpdate(
+  date: Date,
+  zone: Zone,
+  prayerTime: PrayerTime,
+) {
+  await requestWidgetUpdate({
+    widgetName: "WaktuSolat",
+    renderWidget: () => (
+      <WaktuSolatWidget date={date} zone={zone} prayerTime={prayerTime} />
+    ),
+    widgetNotFound: () => {},
+  });
 }

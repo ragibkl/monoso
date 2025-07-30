@@ -1,58 +1,16 @@
 import * as Notifications from "expo-notifications";
-import { useEffect } from "react";
 import { Text, View, Button } from "react-native";
-import {
-  requestWidgetUpdate,
-  WidgetPreview,
-} from "react-native-android-widget";
+import { WidgetPreview } from "react-native-android-widget";
 
 import { useCurrentDate } from "@/lib/hooks/date";
-import { useLocation } from "@/lib/service/location";
 import { useWaktuSolatCurrent } from "@/lib/hooks/waktuSolat";
-import { useZone } from "@/lib/hooks/zone";
+import { useUpdatedZone } from "@/lib/hooks/zone";
 import { WaktuSolatWidget } from "@/lib/widgets/WaktuSolatWidget";
-import { registerUpdateWaktuSolatWidgetTask } from "@/lib/tasks/waktuSolatWidgetTask";
 
 export default function Index() {
-  const { location } = useLocation();
-  const { zone, updateZoneViaGps } = useZone();
-  const { waktuSolat } = useWaktuSolatCurrent();
   const { date } = useCurrentDate();
-
-  useEffect(() => {
-    registerUpdateWaktuSolatWidgetTask();
-  }, []);
-
-  useEffect(() => {
-    async function effect() {
-      if (location) {
-        await updateZoneViaGps(
-          location.coords.latitude,
-          location.coords.longitude,
-        );
-      }
-    }
-
-    effect();
-  }, [location, updateZoneViaGps]);
-
-  useEffect(() => {
-    if (!zone || !waktuSolat) {
-      return;
-    }
-
-    requestWidgetUpdate({
-      widgetName: "WaktuSolat",
-      renderWidget: () => (
-        <WaktuSolatWidget
-          date={date}
-          zone={zone}
-          prayerTime={waktuSolat.prayerTime}
-        />
-      ),
-      widgetNotFound: () => {},
-    });
-  }, [date, zone, waktuSolat]);
+  const { zone } = useUpdatedZone();
+  const { waktuSolat } = useWaktuSolatCurrent();
 
   const zoneText = zone
     ? `${zone.zone} - ${zone.district}, ${zone.state}`

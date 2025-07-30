@@ -8,6 +8,8 @@ import { WaktuSolatWidget } from "./WaktuSolatWidget";
 import { zoneStore } from "@/lib/data/zoneStore";
 
 async function renderWaktuSolatWidget(props: WidgetTaskHandlerProps) {
+  const date = startOfMinute(new Date());
+
   const zone = await zoneStore.load();
   if (!zone) {
     console.log("Zone not set, rendering blank widget");
@@ -15,22 +17,21 @@ async function renderWaktuSolatWidget(props: WidgetTaskHandlerProps) {
     return;
   }
 
-  const date = startOfMinute(new Date());
-
   const waktuSolat = await getOrRetrieveWaktuSolat(zone.zone, date);
-  if (waktuSolat) {
-    console.log("Found WaktuSolat, rendering widget");
-    props.renderWidget(
-      <WaktuSolatWidget
-        date={date}
-        zone={zone}
-        prayerTime={waktuSolat.prayerTime}
-      />,
-    );
-  } else {
+  if (!waktuSolat) {
     console.log("WaktuSolat not found, rendering blank widget");
     props.renderWidget(<WaktuSolatWidget date={date} />);
+    return;
   }
+
+  console.log("Found WaktuSolat, rendering widget");
+  props.renderWidget(
+    <WaktuSolatWidget
+      date={date}
+      zone={zone}
+      prayerTime={waktuSolat.prayerTime}
+    />,
+  );
 }
 
 async function waktuSolatWidgetTaskHandler(props: WidgetTaskHandlerProps) {

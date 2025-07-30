@@ -1,7 +1,8 @@
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 
 import { zoneStore, Zone } from "@/lib/data/zoneStore";
 import { lookupZoneByGps } from "@/lib/service/zone";
+import { useLocation } from "@/lib/hooks/location";
 
 export function useZone() {
   const { data: zone, setData: setZone } = zoneStore.use();
@@ -17,4 +18,24 @@ export function useZone() {
   );
 
   return { zone, setZone, updateZoneViaGps };
+}
+
+export function useUpdatedZone() {
+  const { location } = useLocation();
+  const { zone, updateZoneViaGps } = useZone();
+
+  useEffect(() => {
+    async function effect() {
+      if (location) {
+        await updateZoneViaGps(
+          location.coords.latitude,
+          location.coords.longitude,
+        );
+      }
+    }
+
+    effect();
+  }, [location, updateZoneViaGps]);
+
+  return { zone };
 }
