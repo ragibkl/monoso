@@ -1,5 +1,4 @@
-import * as Notifications from "expo-notifications";
-import { Text, View, Button } from "react-native";
+import { Text, View } from "react-native";
 import { WidgetPreview } from "react-native-android-widget";
 
 import { useCurrentDate } from "@/lib/hooks/date";
@@ -35,22 +34,6 @@ export default function Index() {
           height={90}
         />
       </View>
-
-      <Button
-        title="notif"
-        onPress={() => {
-          Notifications.scheduleNotificationAsync({
-            content: {
-              title: "Waktu Solat - test",
-            },
-            trigger: {
-              type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-              seconds: 10,
-              repeats: false,
-            },
-          });
-        }}
-      />
     </View>
   );
 }
