@@ -52,29 +52,19 @@ function getNextPrayerTime(
 
   if (epoch < fajr) {
     return ["fajr", fajr - epoch];
-  }
-
-  if (epoch < syuruk) {
+  } else if (epoch < syuruk) {
     return ["syuruk", syuruk - epoch];
-  }
-
-  if (epoch < dhuhr) {
+  } else if (epoch < dhuhr) {
     return ["dhuhr", dhuhr - epoch];
-  }
-
-  if (epoch < asr) {
+  } else if (epoch < asr) {
     return ["asr", asr - epoch];
-  }
-
-  if (epoch < maghrib) {
+  } else if (epoch < maghrib) {
     return ["maghrib", maghrib - epoch];
-  }
-
-  if (epoch < isha) {
+  } else if (epoch < isha) {
     return ["isha", isha - epoch];
+  } else {
+    return null;
   }
-
-  return null;
 }
 
 async function scheduleNextPrayerTime(prayerTime: PrayerTime, date: Date) {
