@@ -127,7 +127,7 @@ export function WaktuSolatWidget(props: WaktuSolatWidgetProps) {
         }}
       >
         <TextWidget
-          text={date.toDateString()}
+          text={date.toLocaleString()}
           style={{
             fontSize: 12,
             color: "#000000",

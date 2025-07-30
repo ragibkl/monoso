@@ -1,5 +1,6 @@
+import * as Notifications from "expo-notifications";
 import { useEffect } from "react";
-import { Text, View } from "react-native";
+import { Text, View, Button } from "react-native";
 import {
   requestWidgetUpdate,
   WidgetPreview,
@@ -76,6 +77,22 @@ export default function Index() {
           height={90}
         />
       </View>
+
+      <Button
+        title="notif"
+        onPress={() => {
+          Notifications.scheduleNotificationAsync({
+            content: {
+              title: "Waktu Solat - test",
+            },
+            trigger: {
+              type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+              seconds: 10,
+              repeats: false,
+            },
+          });
+        }}
+      />
     </View>
   );
 }
