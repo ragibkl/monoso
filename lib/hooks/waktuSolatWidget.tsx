@@ -2,7 +2,10 @@ import * as BackgroundTask from "expo-background-task";
 import * as Notifications from "expo-notifications";
 import { useEffect } from "react";
 
-import { WAKTU_SOLAT_NOTIFICATION_CHANNEL } from "@/lib/service/waktuSolatWidget";
+import {
+  schedulePrayerNotification,
+  WAKTU_SOLAT_NOTIFICATION_CHANNEL,
+} from "@/lib/service/waktuSolatWidget";
 import { BG_TASK, NOTIF_TASK } from "@/lib/tasks/waktuSolatWidgetTask";
 import { requestWaktuSolatWidgetUpdate } from "@/lib/widgets/WaktuSolatWidget";
 
@@ -40,6 +43,8 @@ export function useWaktuSolatWidgetUpdate() {
     async function effect() {
       if (zone && waktuSolat) {
         await requestWaktuSolatWidgetUpdate(date, zone, waktuSolat.prayerTime);
+        await Notifications.cancelAllScheduledNotificationsAsync();
+        await schedulePrayerNotification(waktuSolat, date);
       }
     }
     effect();

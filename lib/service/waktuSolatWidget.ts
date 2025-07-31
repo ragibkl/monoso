@@ -10,7 +10,10 @@ import { getUpdatedZone } from "./zone";
 
 export const WAKTU_SOLAT_NOTIFICATION_CHANNEL = "waktu_solat";
 
-async function schedulePrayerNotification(waktuSolat: WaktuSolat, date: Date) {
+export async function schedulePrayerNotification(
+  waktuSolat: WaktuSolat,
+  date: Date,
+) {
   const nextTime = getNextPrayerTime(waktuSolat, date);
   if (nextTime) {
     console.log("Schedule nextTime", nextTime);

@@ -10,7 +10,7 @@ export const NOTIF_TASK = "waktu-solat-notifications-task";
 TaskManager.defineTask(BG_TASK, async () => {
   try {
     console.log("Start background task");
-    await updateWaktuSolatWidget(true, true);
+    await updateWaktuSolatWidget(false, true);
   } catch (error) {
     console.error("Failed background task:", error);
     return BackgroundTask.BackgroundTaskResult.Failed;
