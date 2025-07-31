@@ -6,7 +6,7 @@ import {
   schedulePrayerNotification,
   WAKTU_SOLAT_NOTIFICATION_CHANNEL,
 } from "@/lib/service/waktuSolatWidget";
-import { BG_TASK, NOTIF_TASK } from "@/lib/tasks/waktuSolatWidgetTask";
+import { BG_TASK, NOTIF_TASK } from "@/lib/tasks/backgroundTasks";
 import { requestWaktuSolatWidgetUpdate } from "@/lib/widgets/WaktuSolatWidget";
 
 import { useCurrentDate } from "./date";
@@ -44,7 +44,7 @@ export function useWaktuSolatWidgetUpdate() {
       if (zone && waktuSolat) {
         await requestWaktuSolatWidgetUpdate(date, zone, waktuSolat.prayerTime);
         await Notifications.cancelAllScheduledNotificationsAsync();
-        await schedulePrayerNotification(waktuSolat, date);
+        await schedulePrayerNotification(waktuSolat);
       }
     }
     effect();

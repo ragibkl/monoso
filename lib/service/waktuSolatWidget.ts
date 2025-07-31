@@ -1,20 +1,39 @@
 import { startOfMinute } from "date-fns";
 import * as Notifications from "expo-notifications";
 
-import { WaktuSolat } from "@/lib/data/waktuSolatStore";
-import { zoneStore } from "@/lib/data/zoneStore";
-import { requestWaktuSolatWidgetUpdate } from "@/lib/widgets/WaktuSolatWidget";
+import { PrayerTime } from "@/lib/data/waktuSolatStore";
+import { zoneStore, Zone } from "@/lib/data/zoneStore";
+import {
+  renderWaktuSolatWidget,
+  requestWaktuSolatWidgetUpdate,
+} from "@/lib/widgets/WaktuSolatWidget";
 
 import { getNextPrayerTime, getOrRetrieveWaktuSolat } from "./waktuSolat";
 import { getUpdatedZone } from "./zone";
+import { WidgetTaskHandlerProps } from "react-native-android-widget";
 
 export const WAKTU_SOLAT_NOTIFICATION_CHANNEL = "waktu_solat";
 
-export async function schedulePrayerNotification(
-  waktuSolat: WaktuSolat,
+export async function getPrayerData(
   date: Date,
-) {
-  const nextTime = getNextPrayerTime(waktuSolat, date);
+  updateZone: boolean,
+): Promise<{ zone: Zone; prayerTime: PrayerTime } | null> {
+  const zone = updateZone ? await getUpdatedZone() : await zoneStore.load();
+  if (!zone) {
+    return null;
+  }
+
+  const waktuSolat = await getOrRetrieveWaktuSolat(zone.zone, date);
+  if (!waktuSolat) {
+    return null;
+  }
+
+  return { zone, prayerTime: waktuSolat.prayerTime };
+}
+
+export async function schedulePrayerNotification(prayerTime: PrayerTime) {
+  const date = new Date();
+  const nextTime = getNextPrayerTime(prayerTime, date);
   if (nextTime) {
     console.log("Schedule nextTime", nextTime);
     await Notifications.scheduleNotificationAsync({
@@ -31,26 +50,32 @@ export async function schedulePrayerNotification(
   }
 }
 
-export async function updateWaktuSolatWidget(
+export async function updateWaktuSolatAndWidget(
   updateZone: boolean,
   updateNotifs: boolean,
 ) {
   const date = startOfMinute(new Date());
-
-  const zone = updateZone ? await getUpdatedZone() : await zoneStore.load();
-  if (!zone) {
+  const data = await getPrayerData(date, updateZone);
+  if (!data) {
     return;
   }
 
-  const waktuSolat = await getOrRetrieveWaktuSolat(zone.zone, date);
-  if (!waktuSolat) {
-    return;
-  }
-
-  await requestWaktuSolatWidgetUpdate(date, zone, waktuSolat.prayerTime);
+  await requestWaktuSolatWidgetUpdate(date, data.zone, data.prayerTime);
 
   if (updateNotifs) {
     await Notifications.cancelAllScheduledNotificationsAsync();
-    await schedulePrayerNotification(waktuSolat, date);
+    await schedulePrayerNotification(data.prayerTime);
   }
+}
+
+export async function updateWaktuSolatAndRender(props: WidgetTaskHandlerProps) {
+  const date = startOfMinute(new Date());
+  const data = await getPrayerData(date, false);
+  if (!data) {
+    console.log("Missing PrayerData, returning");
+    return;
+  }
+
+  console.log("Found PrayerData, rendering widget");
+  renderWaktuSolatWidget(date, data.zone, data.prayerTime, props);
 }

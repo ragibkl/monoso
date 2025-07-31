@@ -1,6 +1,7 @@
 import merge from "deepmerge";
 
 import {
+  PrayerTime,
   WaktuSolat,
   WaktuSolatStore,
   waktuSolatStore,
@@ -74,10 +75,10 @@ export async function getOrRetrieveWaktuSolat(zone: string, date: Date) {
 }
 
 export function getNextPrayerTime(
-  waktuSolat: WaktuSolat,
+  prayerTime: PrayerTime,
   date: Date,
 ): [string, number] | null {
-  const { fajr, syuruk, dhuhr, asr, maghrib, isha } = waktuSolat.prayerTime;
+  const { fajr, syuruk, dhuhr, asr, maghrib, isha } = prayerTime;
   const epoch = date.getTime() / 1000;
 
   if (epoch < fajr) {

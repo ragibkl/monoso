@@ -3,6 +3,7 @@ import {
   FlexWidget,
   requestWidgetUpdate,
   TextWidget,
+  WidgetTaskHandlerProps,
 } from "react-native-android-widget";
 
 import { PrayerTime } from "@/lib/data/waktuSolatStore";
@@ -182,4 +183,15 @@ export async function requestWaktuSolatWidgetUpdate(
     ),
     widgetNotFound: () => {},
   });
+}
+
+export async function renderWaktuSolatWidget(
+  date: Date,
+  zone: Zone,
+  prayerTime: PrayerTime,
+  props: WidgetTaskHandlerProps,
+) {
+  props.renderWidget(
+    <WaktuSolatWidget date={date} zone={zone} prayerTime={prayerTime} />,
+  );
 }
