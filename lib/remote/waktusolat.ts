@@ -21,9 +21,16 @@ export type WaktuSolatResponse = {
 };
 
 export async function getWaktuSolatByZone(
+  date: Date,
   zone: string,
 ): Promise<WaktuSolatResponse> {
-  const url = `https://api.waktusolat.app/v2/solat/${zone}`;
+  console.log(`getWaktuSolatByZone(${date}, ${zone})`);
+  const params = new URLSearchParams({
+    year: `${date.getFullYear()}`,
+    month: `${date.getMonth() + 1}`,
+  });
+  const url = `https://api.waktusolat.app/v2/solat/${zone}?${params.toString()}`;
+  console.log(`getWaktuSolatByZone - GET ${url}`);
   const response = await axios.get(url);
   return response.data as WaktuSolatResponse;
 }

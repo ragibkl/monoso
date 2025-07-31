@@ -21,7 +21,7 @@ export function useWaktuSolat() {
       }
 
       console.log(`Fetch new WaktuSolat from api. zone=${zone} date=${date}`);
-      const res = await getWaktuSolatByZone(zone);
+      const res = await getWaktuSolatByZone(date, zone);
       const newStore = mergeWaktuSolatResponseIntoStore(data, res);
 
       console.log(`Update WaktuSolat into store`);

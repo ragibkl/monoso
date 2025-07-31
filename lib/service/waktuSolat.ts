@@ -66,7 +66,7 @@ export async function getOrRetrieveWaktuSolat(zone: string, date: Date) {
     return waktuSolat;
   }
 
-  const res = await getWaktuSolatByZone(zone);
+  const res = await getWaktuSolatByZone(date, zone);
   const newStore = mergeWaktuSolatResponseIntoStore(store, res);
   console.log(`Update WaktuSolat into store`);
   await waktuSolatStore.save(newStore);
