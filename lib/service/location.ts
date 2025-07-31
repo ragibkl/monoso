@@ -1,10 +1,15 @@
 import * as Location from "expo-location";
 
 export async function getLocation(): Promise<Location.LocationObject | null> {
-  let fgPermission = await Location.requestForegroundPermissionsAsync();
-  if (fgPermission.status !== "granted") {
+  try {
+    let permission = await Location.requestForegroundPermissionsAsync();
+    if (permission.status !== "granted") {
+      return null;
+    }
+
+    return await Location.getCurrentPositionAsync({});
+  } catch (e) {
+    console.log("Cannot get location", e);
     return null;
   }
-
-  return await Location.getCurrentPositionAsync({});
 }
