@@ -6,6 +6,7 @@ import {
   useEffect,
   useCallback,
   useContext,
+  useMemo,
 } from "react";
 
 type ProviderProps = {
@@ -29,6 +30,11 @@ export function createDataStore<T>(dataKey: string, initialValue: T) {
     emitChange();
   }
 
+  async function loadRaw(): Promise<string | null> {
+    const json = await AsyncStorage.getItem(dataKey);
+    return json || null;
+  }
+
   async function load(): Promise<T> {
     const json = await AsyncStorage.getItem(dataKey);
     if (!json) {
@@ -42,11 +48,19 @@ export function createDataStore<T>(dataKey: string, initialValue: T) {
 
   function Provider(props: ProviderProps) {
     const [isLoading, setIsLoading] = useState<boolean>(true);
-    const [data, setDataState] = useState<T>(initialValue);
+    const [dataRaw, setDataRaw] = useState<string | null>(null);
+
+    const data = useMemo(() => {
+      if (dataRaw) {
+        return JSON.parse(dataRaw) as T;
+      } else {
+        return initialValue;
+      }
+    }, [dataRaw]);
 
     const loadDataToState = useCallback(async () => {
-      const dataLoad = await load();
-      setDataState(dataLoad);
+      const dataRawLoad = await loadRaw();
+      setDataRaw(dataRawLoad);
       setIsLoading(false);
     }, []);
 
@@ -62,8 +76,7 @@ export function createDataStore<T>(dataKey: string, initialValue: T) {
     }, [loadDataToState]);
 
     const setData = useCallback(async (newData: T) => {
-      await saveInner(newData);
-      setDataState(newData);
+      await save(newData);
     }, []);
 
     return (
