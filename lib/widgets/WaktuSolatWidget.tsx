@@ -9,7 +9,16 @@ import {
 import { PrayerTime } from "@/lib/data/waktuSolatStore";
 import { Zone } from "@/lib/data/zoneStore";
 
-function TextLabel(props: { children: string; bold: boolean }) {
+function getTimeText(epochSeconds: number) {
+  const date = new Date(0);
+  date.setUTCSeconds(epochSeconds);
+  return date.toLocaleString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function ColumnText(props: { children: string; bold: boolean }) {
   return (
     <FlexWidget
       style={{
@@ -21,46 +30,25 @@ function TextLabel(props: { children: string; bold: boolean }) {
       <TextWidget
         text={props.children}
         style={{
-          fontSize: 10,
-          fontWeight: props.bold ? "bold" : "normal",
+          fontSize: 12,
           fontFamily: "LiberationMono",
-          color: "#000000",
+          fontWeight: props.bold ? "bold" : "normal",
         }}
       />
     </FlexWidget>
   );
 }
 
-function TimeDisplay(props: { children: number; bold: boolean }) {
-  const date = new Date(0);
-  date.setUTCSeconds(props.children);
-  const text = date.toLocaleString([], {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+function Column(props: {
+  date: Date;
+  label: string;
+  start: number;
+  end?: number;
+}) {
+  const { date, label, start, end = Infinity } = props;
+  const epoch = date.getTime() / 1000;
+  const bold = epoch >= start && epoch < end;
 
-  return (
-    <FlexWidget
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <TextWidget
-        text={text}
-        style={{
-          fontSize: 10,
-          fontWeight: props.bold ? "bold" : "normal",
-          fontFamily: "LiberationMono",
-          color: "#000000",
-        }}
-      />
-    </FlexWidget>
-  );
-}
-
-function Column(props: { label: string; time: number; bold: boolean }) {
   return (
     <FlexWidget
       style={{
@@ -71,8 +59,8 @@ function Column(props: { label: string; time: number; bold: boolean }) {
         alignItems: "center",
       }}
     >
-      <TextLabel bold={props.bold}>{props.label}</TextLabel>
-      <TimeDisplay bold={props.bold}>{props.time}</TimeDisplay>
+      <ColumnText bold={bold}>{label}</ColumnText>
+      <ColumnText bold={bold}>{getTimeText(start)}</ColumnText>
     </FlexWidget>
   );
 }
@@ -97,17 +85,7 @@ export function WaktuSolatWidget(props: WaktuSolatWidgetProps) {
     zone,
   } = props;
 
-  const zoneText = zone
-    ? `${zone.zone} - ${zone.district}, ${zone.state}`
-    : "Location not set";
-
-  const epoch = date.getTime() / 1000;
-  const fajrBold = epoch >= fajr && epoch < syuruk;
-  const syurukBold = epoch >= syuruk && epoch < dhuhr;
-  const dhuhrBold = epoch >= dhuhr && epoch < asr;
-  const asrBold = epoch >= asr && epoch < maghrib;
-  const maghribBold = epoch >= maghrib && epoch < isha;
-  const ishaBold = epoch >= isha;
+  const zoneText = zone ? zone.district : "Location not set";
 
   return (
     <FlexWidget
@@ -160,12 +138,12 @@ export function WaktuSolatWidget(props: WaktuSolatWidgetProps) {
           borderWidth: 1,
         }}
       >
-        <Column label="Fajr" time={fajr} bold={fajrBold} />
-        <Column label="Syuruk" time={syuruk} bold={syurukBold} />
-        <Column label="Dhuhr" time={dhuhr} bold={dhuhrBold} />
-        <Column label="Asr" time={asr} bold={asrBold} />
-        <Column label="Maghrib" time={maghrib} bold={maghribBold} />
-        <Column label="Isha" time={isha} bold={ishaBold} />
+        <Column date={date} label="Fajr" start={fajr} end={syuruk} />
+        <Column date={date} label="Syuruk" start={syuruk} end={dhuhr} />
+        <Column date={date} label="Dhuhr" start={dhuhr} end={asr} />
+        <Column date={date} label="Asr" start={asr} end={maghrib} />
+        <Column date={date} label="Maghrib" start={maghrib} end={isha} />
+        <Column date={date} label="Isha" start={isha} />
       </FlexWidget>
     </FlexWidget>
   );
