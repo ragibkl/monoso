@@ -29,10 +29,16 @@ export function lookupZoneByGps(lat: number, lng: number): Zone | null {
 export async function updateZoneViaGps(
   lat: number,
   lng: number,
-): Promise<Zone> {
+): Promise<Zone | null> {
+  const zone = await zoneStore.load();
   const zoneData = lookupZoneByGps(lat, lng);
-  await zoneStore.save(zoneData);
-  return zoneData as Zone;
+
+  if (zoneData && zoneData.zone !== zone?.zone) {
+    await zoneStore.save(zoneData);
+    return zoneData;
+  }
+
+  return zone;
 }
 
 export async function getUpdatedZone(): Promise<Zone | null> {

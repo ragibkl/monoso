@@ -43,8 +43,7 @@ export function useWaktuSolatWidgetUpdate() {
     async function effect() {
       if (zone && waktuSolat) {
         await requestWaktuSolatWidgetUpdate(date, zone, waktuSolat.prayerTime);
-        await Notifications.cancelAllScheduledNotificationsAsync();
-        await schedulePrayerNotification(waktuSolat.prayerTime);
+        await schedulePrayerNotification(waktuSolat);
       }
     }
     effect();
