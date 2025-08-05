@@ -38,38 +38,43 @@ export async function schedulePrayerNotification(waktuSolat: WaktuSolat) {
     return;
   }
 
+  const toCancelNotif: Notifications.NotificationRequest[] = [];
   let existingNotif = null;
+
   const notifications = await Notifications.getAllScheduledNotificationsAsync();
-  for (const n of notifications) {
+  notifications.forEach((n) => {
     // Assert notification type is TIME_INTERVAL
+    // Assert notification trigger channel is WAKTU_SOLAT_NOTIFICATION_CHANNEL
     if (
       !n.trigger ||
       !("type" in n.trigger) ||
       n.trigger?.type !==
-        Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL
+        Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL ||
+      n.trigger.channelId !== WAKTU_SOLAT_NOTIFICATION_CHANNEL
     ) {
-      continue;
+      return;
     }
 
-    // Assert notification trigger channel is WAKTU_SOLAT_NOTIFICATION_CHANNEL
-    if (n.trigger.channelId !== WAKTU_SOLAT_NOTIFICATION_CHANNEL) {
-      continue;
-    }
-
-    // Check for pre-existing notification that matches current desired schedule
-    // Otherwise, cancel them
+    // Check for notification that don't match the current day and zone
     if (
-      n.content.data.year === waktuSolat.year &&
-      n.content.data.month === waktuSolat.month &&
-      n.content.data.date === waktuSolat.date &&
-      n.content.data.zone === waktuSolat.zone &&
-      n.content.data.waktu === nextTime[0]
+      n.content.data.year !== waktuSolat.year ||
+      n.content.data.month !== waktuSolat.month ||
+      n.content.data.date !== waktuSolat.date ||
+      n.content.data.zone !== waktuSolat.zone
     ) {
+      toCancelNotif.push(n);
+
+      // Check for pre-existing notification that matches current desired schedule
+    } else if (n.content.data.waktu === nextTime[0]) {
       existingNotif = n;
-    } else {
-      await Notifications.cancelScheduledNotificationAsync(n.identifier);
     }
-  }
+  });
+
+  await Promise.all(
+    toCancelNotif.map((n) =>
+      Notifications.cancelScheduledNotificationAsync(n.identifier),
+    ),
+  );
 
   if (existingNotif) {
     console.log("Existing notification exists -", existingNotif);
@@ -77,9 +82,13 @@ export async function schedulePrayerNotification(waktuSolat: WaktuSolat) {
   }
 
   console.log("Schedule next notification", nextTime);
+  const timeText = date.toLocaleString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
   await Notifications.scheduleNotificationAsync({
     content: {
-      title: `Waktu Solat - ${nextTime[0]}`,
+      title: `Waktu Solat - ${nextTime[0]} at ${timeText}`,
       data: {
         year: waktuSolat.year,
         month: waktuSolat.month,
@@ -90,7 +99,7 @@ export async function schedulePrayerNotification(waktuSolat: WaktuSolat) {
     },
     trigger: {
       type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-      seconds: nextTime[1],
+      seconds: (nextTime[1].getTime() - Date.now()) / 1000,
       channelId: WAKTU_SOLAT_NOTIFICATION_CHANNEL,
       repeats: false,
     },
