@@ -51,10 +51,13 @@ export async function schedulePrayerNotification(waktuSolat: WaktuSolat) {
       continue;
     }
 
+    // Assert notification trigger channel is WAKTU_SOLAT_NOTIFICATION_CHANNEL
     if (n.trigger.channelId !== WAKTU_SOLAT_NOTIFICATION_CHANNEL) {
       continue;
     }
 
+    // Check for pre-existing notification that matches current desired schedule
+    // Otherwise, cancel them
     if (
       n.content.data.year === waktuSolat.year &&
       n.content.data.month === waktuSolat.month &&
@@ -70,6 +73,7 @@ export async function schedulePrayerNotification(waktuSolat: WaktuSolat) {
 
   if (existingNotif) {
     console.log("Existing notification exists -", existingNotif);
+    return;
   }
 
   console.log("Schedule next notification", nextTime);
