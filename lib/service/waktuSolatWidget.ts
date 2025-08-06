@@ -82,13 +82,28 @@ export async function schedulePrayerNotification(waktuSolat: WaktuSolat) {
   }
 
   console.log("Schedule next notification", nextTime);
-  const timeText = date.toLocaleString([], {
+  const timeText = nextTime[1].toLocaleString([], {
     hour: "2-digit",
     minute: "2-digit",
   });
+  const now = new Date();
+  const seconds = (nextTime[1].getTime() - now.getTime()) / 1000;
+  const body = JSON.stringify(
+    {
+      waktuSolat,
+      date: date.toLocaleString(),
+      nextTime: [nextTime[0], nextTime[1].toLocaleString()],
+      now: now.toLocaleString(),
+      seconds,
+    },
+    undefined,
+    4,
+  );
+
   await Notifications.scheduleNotificationAsync({
     content: {
       title: `Waktu Solat - ${nextTime[0]} at ${timeText}`,
+      body,
       data: {
         year: waktuSolat.year,
         month: waktuSolat.month,
@@ -99,7 +114,7 @@ export async function schedulePrayerNotification(waktuSolat: WaktuSolat) {
     },
     trigger: {
       type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-      seconds: (nextTime[1].getTime() - Date.now()) / 1000,
+      seconds,
       channelId: WAKTU_SOLAT_NOTIFICATION_CHANNEL,
       repeats: false,
     },
