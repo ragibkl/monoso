@@ -43,13 +43,10 @@ export async function schedulePrayerNotification(waktuSolat: WaktuSolat) {
 
   const notifications = await Notifications.getAllScheduledNotificationsAsync();
   notifications.forEach((n) => {
-    // Assert notification type is TIME_INTERVAL
     // Assert notification trigger channel is WAKTU_SOLAT_NOTIFICATION_CHANNEL
     if (
       !n.trigger ||
-      !("type" in n.trigger) ||
-      n.trigger?.type !==
-        Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL ||
+      !("channelId" in n.trigger) ||
       n.trigger.channelId !== WAKTU_SOLAT_NOTIFICATION_CHANNEL
     ) {
       return;
@@ -86,17 +83,13 @@ export async function schedulePrayerNotification(waktuSolat: WaktuSolat) {
     hour: "2-digit",
     minute: "2-digit",
   });
-  const now = new Date();
-  const seconds = (nextTime[1].getTime() - now.getTime()) / 1000;
   const body = JSON.stringify(
     {
       date: date.toLocaleString(),
       nextTime: [nextTime[0], nextTime[1].toLocaleString()],
-      now: now.toLocaleString(),
-      seconds,
     },
     undefined,
-    4,
+    2,
   );
 
   await Notifications.scheduleNotificationAsync({
@@ -112,10 +105,9 @@ export async function schedulePrayerNotification(waktuSolat: WaktuSolat) {
       },
     },
     trigger: {
-      type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-      seconds,
+      type: Notifications.SchedulableTriggerInputTypes.DATE,
       channelId: WAKTU_SOLAT_NOTIFICATION_CHANNEL,
-      repeats: false,
+      date: nextTime[1],
     },
   });
 }
@@ -130,14 +122,11 @@ export async function updateWaktuSolatAndWidget(
     return;
   }
 
-  await requestWaktuSolatWidgetUpdate(
-    date,
-    data.zone,
-    data.waktuSolat.prayerTime,
-  );
+  const { zone, waktuSolat } = data;
+  await requestWaktuSolatWidgetUpdate(date, zone, waktuSolat.prayerTime);
 
   if (updateNotifs) {
-    await schedulePrayerNotification(data.waktuSolat);
+    await schedulePrayerNotification(waktuSolat);
   }
 }
 
