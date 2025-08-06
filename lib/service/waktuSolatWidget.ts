@@ -90,7 +90,6 @@ export async function schedulePrayerNotification(waktuSolat: WaktuSolat) {
   const seconds = (nextTime[1].getTime() - now.getTime()) / 1000;
   const body = JSON.stringify(
     {
-      waktuSolat,
       date: date.toLocaleString(),
       nextTime: [nextTime[0], nextTime[1].toLocaleString()],
       now: now.toLocaleString(),
