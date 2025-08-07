@@ -25,7 +25,7 @@ export function useWaktuSolatWidgetUpdate() {
         WAKTU_SOLAT_NOTIFICATION_CHANNEL,
         {
           name: "Waktu Solat Notifications",
-          importance: Notifications.AndroidImportance.MAX,
+          importance: Notifications.AndroidImportance.HIGH,
           vibrationPattern: [0, 250, 250, 250],
           lightColor: "#FF231F7C",
         },

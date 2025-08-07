@@ -17,6 +17,7 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
+      "permissions": ["android.permission.SCHEDULE_EXACT_ALARM"],
       "package": "com.ragibkl.monoso"
     },
     "web": {
