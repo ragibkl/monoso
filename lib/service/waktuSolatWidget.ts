@@ -14,6 +14,15 @@ import { WidgetTaskHandlerProps } from "react-native-android-widget";
 
 export const WAKTU_SOLAT_NOTIFICATION_CHANNEL = "waktu_solat";
 
+function sameWaktuSolat(left: WaktuSolat, right: WaktuSolat): boolean {
+  return (
+    left.year === right.year &&
+    left.month === right.month &&
+    left.date === right.date &&
+    left.zone === right.zone
+  );
+}
+
 export async function getPrayerData(
   date: Date,
   updateZone: boolean,
@@ -31,7 +40,10 @@ export async function getPrayerData(
   return { zone, waktuSolat };
 }
 
-export async function schedulePrayerNotification(waktuSolat: WaktuSolat) {
+export async function schedulePrayerNotification(
+  waktuSolat: WaktuSolat,
+  zone: Zone,
+) {
   const date = new Date();
   const nextTime = getNextPrayerTime(waktuSolat.prayerTime, date);
   if (!nextTime) {
@@ -39,7 +51,7 @@ export async function schedulePrayerNotification(waktuSolat: WaktuSolat) {
   }
 
   const toCancelNotif: Notifications.NotificationRequest[] = [];
-  let existingNotif = null;
+  let existingNotif: Notifications.NotificationRequest | null = null;
 
   const notifications = await Notifications.getAllScheduledNotificationsAsync();
   notifications.forEach((n) => {
@@ -52,13 +64,8 @@ export async function schedulePrayerNotification(waktuSolat: WaktuSolat) {
       return;
     }
 
-    // Check for notification that don't match the current day and zone
-    if (
-      n.content.data.year !== waktuSolat.year ||
-      n.content.data.month !== waktuSolat.month ||
-      n.content.data.date !== waktuSolat.date ||
-      n.content.data.zone !== waktuSolat.zone
-    ) {
+    // Check for notification that don't match the current WaktuSolat
+    if (!sameWaktuSolat(n.content.data.waktuSolat as WaktuSolat, waktuSolat)) {
       toCancelNotif.push(n);
 
       // Check for pre-existing notification that matches current desired schedule
@@ -83,24 +90,14 @@ export async function schedulePrayerNotification(waktuSolat: WaktuSolat) {
     hour: "2-digit",
     minute: "2-digit",
   });
-  const body = JSON.stringify(
-    {
-      date: date.toLocaleString(),
-      nextTime: [nextTime[0], nextTime[1].toLocaleString()],
-    },
-    undefined,
-    2,
-  );
 
   await Notifications.scheduleNotificationAsync({
     content: {
       title: `Waktu Solat - ${nextTime[0]} at ${timeText}`,
-      body,
+      body: `The time is now ${timeText}. It is now ${nextTime[0]} in ${zone.district}, ${zone.state}`,
       data: {
-        year: waktuSolat.year,
-        month: waktuSolat.month,
-        date: waktuSolat.date,
-        zone: waktuSolat.zone,
+        waktuSolat,
+        zone,
         waktu: nextTime[0],
       },
     },
@@ -126,7 +123,7 @@ export async function updateWaktuSolatAndWidget(
   await requestWaktuSolatWidgetUpdate(date, zone, waktuSolat.prayerTime);
 
   if (updateNotifs) {
-    await schedulePrayerNotification(waktuSolat);
+    await schedulePrayerNotification(waktuSolat, zone);
   }
 }
 
