@@ -3,10 +3,10 @@ import * as Notifications from "expo-notifications";
 import { useEffect } from "react";
 
 import {
-  schedulePrayerNotification,
-  WAKTU_SOLAT_NOTIFICATION_CHANNEL,
+  scheduleAllWaktuSolatNotifications,
+  setAllWaktuSolatChannels,
 } from "@/lib/service/waktuSolatWidget";
-import { BG_TASK, NOTIF_TASK } from "@/lib/tasks/backgroundTasks";
+import { BG_TASK } from "@/lib/tasks/backgroundTasks";
 import { requestWaktuSolatWidgetUpdate } from "@/lib/widgets/WaktuSolatWidget";
 
 import { useCurrentDate } from "./date";
@@ -21,16 +21,8 @@ export function useWaktuSolatWidgetUpdate() {
   useEffect(() => {
     async function effect() {
       await Notifications.requestPermissionsAsync();
-      await Notifications.setNotificationChannelAsync(
-        WAKTU_SOLAT_NOTIFICATION_CHANNEL,
-        {
-          name: "Waktu Solat Notifications",
-          importance: Notifications.AndroidImportance.HIGH,
-          vibrationPattern: [0, 250, 250, 250],
-          lightColor: "#FF231F7C",
-        },
-      );
-      await Notifications.registerTaskAsync(NOTIF_TASK);
+      await setAllWaktuSolatChannels();
+      // await Notifications.registerTaskAsync(NOTIF_TASK);
 
       await BackgroundTask.registerTaskAsync(BG_TASK, {
         minimumInterval: 15,
@@ -43,7 +35,7 @@ export function useWaktuSolatWidgetUpdate() {
     async function effect() {
       if (zone && waktuSolat) {
         await requestWaktuSolatWidgetUpdate(date, zone, waktuSolat.prayerTime);
-        await schedulePrayerNotification(waktuSolat, zone);
+        await scheduleAllWaktuSolatNotifications(waktuSolat, zone);
       }
     }
     effect();
