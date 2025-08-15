@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 
-import {
-  scheduleAllWaktuSolatNotifications,
-  setupNotifications,
-} from "@/lib/service/notifications";
+// import {
+//   scheduleAllWaktuSolatNotifications,
+//   setupNotifications,
+// } from "@/lib/service/notifications";
+import { scheduleAllWaktuSolatNotifications } from "@/lib/service/notifee";
 import { registerBackgroundTasks } from "@/lib/tasks/backgroundTasks";
 import { requestWaktuSolatWidgetUpdate } from "@/lib/widgets/WaktuSolatWidget";
 
@@ -20,7 +21,7 @@ export function useWaktuSolatWidgetUpdate() {
 
   useEffect(() => {
     async function effect() {
-      await setupNotifications();
+      // await setupNotifications();
       await registerBackgroundTasks();
 
       setIsLoading(false);
