@@ -26,8 +26,8 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+      "@notifee/react-native",
       [
-        "@notifee/react-native",
         "expo-location",
         {
           "locationAlwaysAndWhenInUsePermission": "Allow MonoSo to use your location.",
