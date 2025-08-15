@@ -48,7 +48,7 @@ export async function updateWaktuSolatAndWidget(
 }
 
 export async function updateWaktuSolatAndRender(props: WidgetTaskHandlerProps) {
-  const date = new Date();
+  const date = startOfMinute(new Date());
   const data = await getPrayerData(date, false);
   if (!data) {
     console.log("Missing PrayerData, returning");

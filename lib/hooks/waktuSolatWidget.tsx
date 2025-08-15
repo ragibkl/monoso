@@ -1,9 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
-// import {
-//   scheduleAllWaktuSolatNotifications,
-//   setupNotifications,
-// } from "@/lib/service/notifications";
 import { scheduleAllWaktuSolatNotifications } from "@/lib/service/notifee";
 import { registerBackgroundTasks } from "@/lib/tasks/backgroundTasks";
 import { requestWaktuSolatWidgetUpdate } from "@/lib/widgets/WaktuSolatWidget";
@@ -17,25 +13,20 @@ export function useWaktuSolatWidgetUpdate() {
   const { zone } = useUpdatedZone();
   const { waktuSolat } = useWaktuSolatCurrent();
 
-  const [isLoading, setIsLoading] = useState(true);
-
   useEffect(() => {
     async function effect() {
-      // await setupNotifications();
       await registerBackgroundTasks();
-
-      setIsLoading(false);
     }
     effect();
   }, []);
 
   useEffect(() => {
     async function effect() {
-      if (!isLoading && zone && waktuSolat) {
+      if (zone && waktuSolat) {
         await requestWaktuSolatWidgetUpdate(date, zone, waktuSolat.prayerTime);
         await scheduleAllWaktuSolatNotifications(waktuSolat, zone);
       }
     }
     effect();
-  }, [isLoading, date, zone, waktuSolat]);
+  }, [date, zone, waktuSolat]);
 }

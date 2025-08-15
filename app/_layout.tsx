@@ -7,7 +7,7 @@ export default function RootLayout() {
   return (
     <waktuSolatStore.Provider>
       <zoneStore.Provider>
-        <Stack />
+        <Stack screenOptions={{ headerShown: false }} />
       </zoneStore.Provider>
     </waktuSolatStore.Provider>
   );
