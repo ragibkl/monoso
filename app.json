@@ -27,6 +27,7 @@
     },
     "plugins": [
       [
+        "@notifee/react-native",
         "expo-location",
         {
           "locationAlwaysAndWhenInUsePermission": "Allow MonoSo to use your location.",
