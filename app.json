@@ -9,7 +9,8 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.ragibkl.monoso"
     },
     "android": {
       "adaptiveIcon": {
@@ -17,7 +18,14 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "permissions": ["android.permission.SCHEDULE_EXACT_ALARM"],
+      "permissions": [
+        "android.permission.SCHEDULE_EXACT_ALARM",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_BACKGROUND_LOCATION",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_LOCATION"
+      ],
       "package": "com.ragibkl.monoso"
     },
     "web": {
@@ -26,7 +34,6 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      "@notifee/react-native",
       [
         "expo-location",
         {
@@ -47,7 +54,9 @@
       [
         "react-native-android-widget",
         {
-          "fonts": ["./assets/fonts/LiberationMono.ttf"],
+          "fonts": [
+            "./assets/fonts/LiberationMono.ttf"
+          ],
           "widgets": [
             {
               "name": "WaktuSolat",
