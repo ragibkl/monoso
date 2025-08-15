@@ -45,6 +45,13 @@ TaskManager.defineTask<Notifications.NotificationTaskPayload>(
   },
 );
 
+export async function registerBackgroundTasks() {
+  await BackgroundTask.registerTaskAsync(BG_TASK, {
+    minimumInterval: 15,
+  });
+  // await Notifications.registerTaskAsync(NOTIF_TASK);
+}
+
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowBanner: true,

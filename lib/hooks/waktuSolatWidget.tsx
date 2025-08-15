@@ -1,12 +1,10 @@
-import * as BackgroundTask from "expo-background-task";
-import * as Notifications from "expo-notifications";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import {
   scheduleAllWaktuSolatNotifications,
-  setAllWaktuSolatChannels,
-} from "@/lib/service/waktuSolatWidget";
-import { BG_TASK } from "@/lib/tasks/backgroundTasks";
+  setupNotifications,
+} from "@/lib/service/notifications";
+import { registerBackgroundTasks } from "@/lib/tasks/backgroundTasks";
 import { requestWaktuSolatWidgetUpdate } from "@/lib/widgets/WaktuSolatWidget";
 
 import { useCurrentDate } from "./date";
@@ -18,26 +16,25 @@ export function useWaktuSolatWidgetUpdate() {
   const { zone } = useUpdatedZone();
   const { waktuSolat } = useWaktuSolatCurrent();
 
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
     async function effect() {
-      await Notifications.requestPermissionsAsync();
-      await setAllWaktuSolatChannels();
-      // await Notifications.registerTaskAsync(NOTIF_TASK);
+      await setupNotifications();
+      await registerBackgroundTasks();
 
-      await BackgroundTask.registerTaskAsync(BG_TASK, {
-        minimumInterval: 15,
-      });
+      setIsLoading(false);
     }
     effect();
   }, []);
 
   useEffect(() => {
     async function effect() {
-      if (zone && waktuSolat) {
+      if (!isLoading && zone && waktuSolat) {
         await requestWaktuSolatWidgetUpdate(date, zone, waktuSolat.prayerTime);
         await scheduleAllWaktuSolatNotifications(waktuSolat, zone);
       }
     }
     effect();
-  }, [date, zone, waktuSolat]);
+  }, [isLoading, date, zone, waktuSolat]);
 }
