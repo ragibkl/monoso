@@ -7,7 +7,9 @@ export default function RootLayout() {
   return (
     <waktuSolatStore.Provider>
       <zoneStore.Provider>
-        <Stack screenOptions={{ headerShown: false }} />
+        <Stack>
+          <Stack.Screen name="index" options={{ title: "Waktu Solat" }} />
+        </Stack>
       </zoneStore.Provider>
     </waktuSolatStore.Provider>
   );
