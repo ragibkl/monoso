@@ -46,6 +46,7 @@ async function scheduleWaktuSolatNotification(
   const channelId = await notifee.createChannel({
     id: `${WAKTU_SOLAT_PREFIX}_${waktu}`,
     name: waktu,
+    sound: "default",
   });
 
   // Trigger a notification
