@@ -2,8 +2,9 @@ import notifee, { EventType, TriggerType } from "@notifee/react-native";
 
 import { WaktuSolat, PrayerTime } from "@/lib/data/waktuSolatStore";
 import { Zone } from "@/lib/data/zoneStore";
+import { requestWaktuSolatWidgetUpdate } from "@/lib/widgets/WaktuSolatWidget";
+
 import { updateWaktuSolatAndWidget } from "./waktuSolatWidget";
-import { requestWaktuSolatWidgetUpdate } from "../widgets/WaktuSolatWidget";
 
 export const WAKTU_SOLAT_PREFIX = "waktu_solat";
 

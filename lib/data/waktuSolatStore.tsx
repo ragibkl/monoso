@@ -18,16 +18,10 @@ export type WaktuSolat = {
 };
 
 export type WaktuSolatStore = {
-  [zone: string]: {
-    [year: number]: {
-      [month: number]: {
-        [date: string]: WaktuSolat;
-      };
-    };
-  };
+  [key: string]: WaktuSolat;
 };
 
 export const waktuSolatStore = createDataStore<WaktuSolatStore>(
-  "WAKTU_SOLAT_STORE_KEY",
+  "WAKTU_SOLAT_STORE_V2_KEY",
   {},
 );
