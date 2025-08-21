@@ -30,7 +30,7 @@ function ColumnText(props: { children: string; bold: boolean }) {
       <TextWidget
         text={props.children}
         style={{
-          fontSize: 12,
+          fontSize: 11,
           fontFamily: "LiberationMono",
           fontWeight: props.bold ? "bold" : "normal",
         }}
@@ -112,7 +112,7 @@ export function WaktuSolatWidget(props: WaktuSolatWidgetProps) {
         <TextWidget
           text={date.toDateString()}
           style={{
-            fontSize: 12,
+            fontSize: 11,
             color: "#000000",
             fontFamily: "LiberationMono",
           }}
@@ -120,7 +120,7 @@ export function WaktuSolatWidget(props: WaktuSolatWidgetProps) {
         <TextWidget
           text={zoneText}
           style={{
-            fontSize: 12,
+            fontSize: 11,
             color: "#000000",
             fontFamily: "LiberationMono",
           }}
